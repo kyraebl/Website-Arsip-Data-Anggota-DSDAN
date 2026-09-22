@@ -1,0 +1,1518 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block body_class %}admin-page{% endblock %}
+
+{% block styles %}
+<link 
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css"
+>
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/dashboard.css'
+    ) }}"
+>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="sidebar">
+        <div class="sidebar__brand">
+            <img
+                class="sidebar__logo"
+                src="{{ url_for(
+                    'static',
+                    filename='assets/brand/logo-dsdan.png'
+                ) }}"
+                alt="Logo Dewan Sumber Daya Air Nasional"
+            >
+
+            <span class="sidebar__brand-name">
+                DEWAN SUMBER<br>
+                DAYA AIR NASIONAL
+            </span>
+        </div>
+
+        <nav
+            class="sidebar__navigation"
+            aria-label="Navigasi utama"
+        >
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="sidebar-link
+                    {% if active_page == 'dashboard' %}
+                        sidebar-link--active
+                    {% endif %}"
+            >
+                <img
+                    class="sidebar-link__icon"
+                    src="{{ url_for(
+                        'static',
+                        filename='assets/icons/dashboard.png'
+                    ) }}"
+                    alt=""
+                >
+                <span>Dashboard</span>
+            </a>
+
+            <a
+                href="{{ url_for('anggota') }}"
+                class="sidebar-link
+                    {% if active_page == 'anggota' %}
+                        sidebar-link--active
+                    {% endif %}"
+            >
+                <img
+                    class="sidebar-link__icon"
+                    src="{{ url_for(
+                        'static',
+                        filename='assets/icons/data-anggota.png'
+                    ) }}"
+                    alt=""
+                >
+                <span>Data Anggota</span>
+            </a>
+
+            <a
+                href="{{ url_for('arsip_anggota') }}"
+                class="sidebar-link
+                    {% if active_page == 'arsip' %}
+                        sidebar-link--active
+                    {% endif %}"
+            >
+                <img
+                    class="sidebar-link__icon"
+                    src="{{ url_for(
+                        'static',
+                        filename='assets/icons/arsip-anggota.png'
+                    ) }}"
+                    alt=""
+                >
+                <span>Arsip Anggota</span>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="admin-main">
+        <header class="topbar">
+            <div class="topbar__heading">
+                <button
+                    id="sidebar-toggle"
+                    class="sidebar-toggle"
+                    type="button"
+                    aria-label="Tutup navigasi"
+                    aria-expanded="true"
+                >
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='assets/icons/menu.png'
+                        ) }}"
+                        alt=""
+                    >
+                </button>
+
+                <h1 class="topbar__title">
+                    {{ page_title }}
+                </h1>
+            </div>
+
+            <div class="topbar__account">
+                <button
+                    id="admin-menu-toggle"
+                    class="admin-menu-toggle"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="admin-menu"
+                >
+                    <span class="topbar__avatar">
+                        <img
+                            src="{{ url_for(
+                                'static',
+                                filename='assets/icons/user.png'
+                            ) }}"
+                            alt=""
+                        >
+                    </span>
+
+                    <span class="topbar__admin-name">Admin</span>
+                </button>
+
+                <div
+                    id="admin-menu"
+                    class="admin-menu"
+                    hidden
+                >
+                    <button
+                        id="logout-button"
+                        class="logout-button"
+                        type="button"
+                    >
+                        Keluar
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-content">
+            <h2 class="dashboard-heading">
+                {{ page_heading }}
+            </h2>
+
+            {% if page_type == "members" %}
+                <section class="member-actions" aria-label="Aksi data anggota">
+                    <button
+                        class="primary-action"
+                        type="button"
+                        id="add-member-button"
+                    >
+                        <span aria-hidden="true">+</span>
+                        Tambah Data
+                    </button>
+                </section>
+
+                <section
+                    class="member-category-tabs"
+                    role="tablist"
+                    aria-label="Kategori data anggota"
+                >
+                    <button
+                        class="member-category-tab member-category-tab--active"
+                        type="button"
+                        role="tab"
+                        aria-selected="true"
+                        aria-controls="category-non-government"
+                        data-member-category="Non-Pemerintah"
+                    >
+                        Anggota Non-Pemerintah
+                    </button>
+
+                    <button
+                        class="member-category-tab"
+                        type="button"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="category-government"
+                        data-member-category="Pemerintah"
+                    >
+                        Anggota Pemerintah
+                    </button>
+
+                    <button
+                        class="member-category-tab"
+                        type="button"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="category-regional-government"
+                        data-member-category="Pemerintah Daerah"
+                    >
+                        Anggota Pemerintah Daerah
+                    </button>
+                </section>
+            {% endif %}
+
+            
+            <section
+                class="member-panel
+                    {% if page_type == 'members' %}
+                        member-panel--data
+                    {% endif %}"
+            >
+                <div class="member-toolbar">
+                    <label
+                        class="search-box"
+                        for="member-search"
+                    >
+                        <img
+                            src="{{ url_for(
+                                'static',
+                                filename='assets/icons/search.png'
+                            ) }}"
+                            alt=""
+                        >
+
+                        <input
+                            id="member-search"
+                            type="search"
+                            placeholder="Cari berdasarkan nama, instansi, atau email..."
+                        >
+                    </label>
+                </div>
+
+                {% if page_type == "dashboard" %}
+                    <div
+                        class="category-tabs"
+                        role="tablist"
+                        aria-label="Kategori anggota"
+                    >
+                        <button
+                            class="category-tab category-tab--active"
+                            type="button"
+                            data-category="Pemerintah"
+                            aria-selected="true"
+                        >
+                            Pemerintah
+                        </button>
+
+                        <button
+                            class="category-tab"
+                            type="button"
+                            data-category="Non-Pemerintah"
+                            aria-selected="false"
+                        >
+                            Non-Pemerintah
+                        </button>
+
+                        <button
+                            class="category-tab"
+                            type="button"
+                            data-category="Pemerintah Daerah"
+                            aria-selected="false"
+                        >
+                            Pemerintah Daerah
+                        </button>
+                    </div>
+                {% endif %}
+
+                {% if page_type == "members" %}
+                    <div
+                        id="category-non-government"
+                        class="member-category-panel"
+                        role="tabpanel"
+                    >
+                        <div class="table-wrapper">
+                            <table class="member-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nama Lengkap</th>
+                                        <th>Instansi / Lembaga</th>
+                                        <th>Email</th>
+                                        <th>Nomor Telepon</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="member-table-body">
+                                    {% for member in members
+                                        if member.category == "Non-Pemerintah" %}
+                                        <tr data-category="{{ member.category }}">
+                                            <td>{{ loop.index }}</td>
+                                            <td>{{ member.name }}</td>
+                                            <td>{{ member.institution }}</td>
+                                            <td>{{ member.email or "-" }}</td>
+                                            <td>{{ member.phone or "-" }}</td>
+                                            <td class="table-actions">
+                                                <button
+                                                    class="detail-button"
+                                                    type="button"
+                                                    data-member-id="{{ member.id }}"
+                                                >
+                                                    Lihat Detail
+                                                </button>
+                                                <button
+                                                    class="icon-action icon-action--edit"
+                                                    type="button"
+                                                    aria-label="Edit anggota"
+                                                    data-member-id="{{ member.id }}"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    class="icon-action icon-action--delete"
+                                                    type="button"
+                                                    aria-label="Hapus anggota"
+                                                    data-member-id="{{ member.id }}"
+                                                >
+                                                    Hapus
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr class="empty-row">
+                                            <td colspan="6">
+                                                Belum ada data anggota
+                                                non-pemerintah.
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div
+                        id="category-government"
+                        class="member-category-panel member-category-panel--cards"
+                        role="tabpanel"
+                        hidden
+                    >
+                        <div class="table-wrapper">
+                            <table class="member-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nama Menteri</th>
+                                        <th>Kementerian / Lembaga</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% set government_members = members
+                                        | selectattr("category", "equalto", "Pemerintah")
+                                        | list %}
+                                    {% for member in government_members %}
+                                        <tr data-category="{{ member.category }}">
+                                            <td>{{ loop.index }}</td>
+                                            <td>{{ member.name }}</td>
+                                            <td>{{ member.institution }}</td>
+                                            <td class="table-actions">
+                                                <button
+                                                    class="detail-button"
+                                                    type="button"
+                                                    data-member-id="{{ member.id }}"
+                                                >
+                                                    Lihat Detail
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr class="empty-row">
+                                            <td colspan="4">
+                                                Belum ada data anggota pemerintah.
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div
+                        id="category-regional-government"
+                        class="member-category-panel member-category-panel--cards"
+                        role="tabpanel"
+                        hidden
+                    >
+                        <div class="table-wrapper">
+                            <table class="member-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nama Gubernur</th>
+                                        <th>Wilayah</th>
+                                        <th>Logo</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% set regional_members = members
+                                        | selectattr("category", "equalto", "Pemerintah Daerah")
+                                        | list %}
+                                    {% for member in regional_members %}
+                                        <tr data-category="{{ member.category }}">
+                                            <td>{{ loop.index }}</td>
+                                            <td>{{ member.name }}</td>
+                                            <td>{{ member.institution }}</td>
+                                            <td>
+                                                {% if member.organization_logo_url or member.photo_url %}
+                                                    <img
+                                                        class="member-table__logo"
+                                                        src="{{ member.organization_logo_url or member.photo_url }}"
+                                                        alt="Logo {{ member.institution }}"
+                                                    >
+                                                {% else %}
+                                                    <span>-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="table-actions">
+                                                <button
+                                                    class="detail-button"
+                                                    type="button"
+                                                    data-member-id="{{ member.id }}"
+                                                >
+                                                    Lihat Detail
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr class="empty-row">
+                                            <td colspan="5">
+                                                Belum ada data pemerintah daerah.
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% else %}
+                <div class="table-wrapper">
+                    <table class="member-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Lengkap</th>
+                                <th>Instansi / Lembaga</th>
+                                <th>Email</th>
+                                <th>Nomor Telepon</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="member-table-body">
+                            {% for member in members %}
+                                <tr
+                                    data-category="{{ member.category }}"
+                                >
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ member.name }}</td>
+                                    <td>{{ member.institution }}</td>
+                                    <td>{{ member.email }}</td>
+                                    <td>{{ member.phone }}</td>
+                                    <td>
+                                        <button
+                                            class="detail-button"
+                                            type="button"
+                                        >
+                                            Lihat Detail
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr class="empty-row">
+                                    <td colspan="6">
+                                        Belum ada data anggota.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+
+                <div class="table-footer">
+                    <span>
+                        Menampilkan
+                        <strong>{{ members|length }}</strong>
+                        data
+                    </span>
+
+                    <div class="pagination">
+                        <button
+                            type="button"
+                            disabled
+                        >
+                            Sebelumnya
+                        </button>
+
+                        <button
+                            class="pagination__active"
+                            type="button"
+                            disabled
+                        >
+                            1
+                        </button>
+
+                        <button
+                            type="button"
+                            disabled
+                        >
+                            Selanjutnya
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="admin-footer">
+            SISTEM MANAJEMEN DATABASE ANGGOTA DEWAN SUMBER DAYA AIR NASIONAL
+        </footer>
+    </div>
+</div>
+
+<div
+    id="member-type-modal"
+    class="app-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="member-type-title"
+>
+    <div class="app-modal__content app-modal__content--small">
+        <div class="app-modal__header">
+            <h2 id="member-type-title">Pilih Jenis Anggota</h2>
+            <button
+                id="member-type-close"
+                class="modal-close"
+                type="button"
+                aria-label="Tutup"
+            >
+                ×
+            </button>
+        </div>
+
+        <p class="member-type-description">
+            Pilih kategori data yang ingin ditambahkan.
+        </p>
+
+        <div class="member-type-options">
+            <button class="member-type-option" type="button"
+                data-member-type="government">
+                Anggota Pemerintah
+                <small>Nama menteri, kementerian, dan logo.</small>
+            </button>
+            <button class="member-type-option" type="button"
+                data-member-type="non-government">
+                Anggota Non-Pemerintah
+                <small>Data perwakilan, organisasi, dan dokumen.</small>
+            </button>
+            <button class="member-type-option" type="button"
+                data-member-type="regional-government">
+                Anggota Pemerintah Daerah
+                <small>Nama gubernur, wilayah, dan logo.</small>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div
+    id="government-member-modal"
+    class="app-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="government-member-title"
+>
+    <div class="app-modal__content app-modal__content--small">
+        <div class="app-modal__header">
+            <h2 id="government-member-title">
+                Tambah Anggota Pemerintah
+            </h2>
+            <button
+                id="government-member-close"
+                class="modal-close"
+                type="button"
+                aria-label="Tutup"
+            >
+                ×
+            </button>
+        </div>
+
+        <form
+            id="government-member-form"
+            method="post"
+            action="{{ url_for('tambah_pemerintah') }}"
+            enctype="multipart/form-data"
+            class="simple-member-form"
+        >
+            <label>
+                Nama Menteri *
+                <input name="full_name" required>
+            </label>
+
+            <label>
+                Nama Kementerian / Lembaga *
+                <input name="institution" required>
+            </label>
+
+            <label>
+                Jabatan *
+                <input
+                    name="position"
+                    placeholder="Contoh: Menteri"
+                    required
+                >
+            </label>
+
+            <label>
+                Foto Menteri
+                <input
+                    name="photo_file"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                >
+            </label>
+            <label>
+                Logo Kementerian
+                <input
+                    name="organization_logo_file"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                >
+            </label>
+
+            <div class="app-modal__actions">
+                <button
+                    id="government-member-cancel"
+                    class="modal-button modal-button--secondary"
+                    type="button"
+                >
+                    Batal
+                </button>
+                <button
+                    class="modal-button modal-button--primary"
+                    type="submit"
+                >
+                    Simpan Data
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div
+    id="logout-modal"
+    class="logout-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="logout-modal-title"
+>
+    <div class="logout-modal__content">
+        <h2 id="logout-modal-title">
+            Konfirmasi Keluar
+        </h2>
+
+        <p>
+            Apakah Anda yakin ingin keluar dari halaman admin?
+        </p>
+
+        <div class="logout-modal__actions">
+            <button
+                id="cancel-logout"
+                class="logout-modal__cancel"
+                type="button"
+            >
+                Batal
+            </button>
+
+            <form
+                method="post"
+                action="{{ url_for('logout') }}"
+            >
+                <button
+                    class="logout-modal__confirm"
+                    type="submit"
+                >
+                    Ya, Keluar
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if page_type == "members" %}
+    <div
+        id="member-modal"
+        class="app-modal"
+        hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="member-modal-title"
+    >
+        <div class="app-modal__content app-modal__content--wide">
+            <div class="app-modal__header">
+                <h2 id="member-modal-title">Tambah Data Anggota</h2>
+                <button
+                    id="member-modal-close"
+                    class="modal-close"
+                    type="button"
+                    aria-label="Tutup"
+                >
+                    ×
+                </button>
+            </div>
+
+            <form
+                id="member-form"
+                method="post"
+                action="{{ url_for('tambah_anggota') }}"
+                class="member-form"
+                enctype="multipart/form-data"
+            >
+
+            <div class="member-form-tabs" role="tablist">
+                <button
+                    type="button"
+                    class="member-form-tab is-active"
+                    data-form-tab="profile"
+                >
+                    Profile Perwakilan
+                </button>
+
+                <button
+                    type="button"
+                    class="member-form-tab"
+                    data-form-tab="organization"
+                >
+                    Profile Organisasi
+                </button>
+
+                <button
+                    type="button"
+                    class="member-form-tab"
+                    data-form-tab="documents"
+                >
+                    Dokumen
+                </button>
+            </div>
+
+            <p class="member-form-required-note">
+                Kolom bertanda <strong>*</strong> wajib diisi.
+            </p>
+                <input
+                    id="member-category"
+                    type="hidden"
+                    name="category"
+                    value="Non-Pemerintah"
+                >
+
+                <section
+                    class="form-section member-form-panel is-active"
+                    data-form-panel="profile"
+                >
+                    <div class="form-section__heading">
+                        <h3>Profile Perwakilan</h3>
+                        <p>Isi data pribadi perwakilan anggota.</p>
+                    </div>
+
+                    <div class="profile-photo-field">
+                        <div class="profile-photo-preview">
+                            <img
+                                id="member-photo-preview"
+                                src="{{ url_for(
+                                    'static',
+                                    filename='assets/icons/user.png'
+                                ) }}"
+                                alt="Preview foto profil"
+                            >
+                        </div>
+
+                        <div class="profile-photo-controls">
+                            <label
+                                class="photo-url-label"
+                                for="member-photo-file"
+                            >
+                                Foto Profil
+                            </label>
+
+                            <input
+                                id="member-photo-file"
+                                name="photo_file"
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                            >
+
+                            <button
+                                id="crop-member-photo-button"
+                                class="secondary-action crop-image-button"
+                                type="button"
+                                hidden
+                            >
+                                Atur / Crop Foto
+                            </button>
+
+                            <input
+                                id="member-photo-url"
+                                name="photo_url"
+                                type="hidden"
+                            >
+
+                            <small>
+                                Format yang didukung: JPG, PNG, atau WEBP.
+                            </small>
+
+                            <button
+                                id="remove-photo-button"
+                                class="remove-photo-button"
+                                type="button"
+                                hidden
+                            >
+                                Hapus Foto
+                            </button>
+
+                            <input
+                                id="remove-photo"
+                                name="remove_photo"
+                                type="checkbox"
+                                hidden
+                            >
+                        </div>
+                    </div>
+
+                    <div class="member-form__single-column">
+                        <label>
+                            Nama Lengkap *
+                            <input
+                                id="member-full-name"
+                                name="full_name"
+                                required
+                            >
+                        </label>
+
+                        <label>
+                            NIK *
+                            <input
+                                id="member-identity-number"
+                                name="identity_number"
+                                required
+                            >
+                        </label>
+
+                        <label>
+                            Nomor HP (WA) / Telp
+                            <input
+                                id="member-phone"
+                                name="phone"
+                            >
+                        </label>
+
+                        <label>
+                            Alamat E-mail
+                            <input
+                                id="member-email"
+                                name="email"
+                                type="email"
+                            >
+                        </label>
+
+                        <label>
+                            Nomor Keanggotaan Asosiasi/Organisasi
+                            <input
+                                id="member-membership-number"
+                                name="membership_number"
+                            >
+                        </label>
+
+                        <label>
+                            Periode Penugasan sebagai Perwakilan Anggota DSDAN
+                            <input
+                                id="member-assignment-period"
+                                name="assignment_period"
+                                placeholder="Contoh: 2024-2029"
+                            >
+                        </label>
+                    </div>
+                </section>
+
+                <section
+                    class="form-section member-form-panel"
+                    data-form-panel="organization"
+                    hidden
+                >
+                    <div class="form-section__heading">
+                        <h3>Profile Organisasi</h3>
+                        <p>Isi data asosiasi atau organisasi yang diwakili.</p>
+                    </div>
+
+                    <div class="organization-logo-field">
+                        <div class="organization-logo-preview">
+                            <img
+                                id="organization-logo-preview"
+                                src="{{ url_for(
+                                    'static',
+                                    filename='assets/icons/user.png'
+                                ) }}"
+                                alt="Preview logo organisasi"
+                            >
+                        </div>
+
+                        <div class="organization-logo-controls">
+                            <label for="organization-logo-file">
+                                Logo Organisasi
+                            </label>
+
+                            <input
+                                id="organization-logo-file"
+                                name="organization_logo_file"
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                            >
+
+                            <button
+                                id="crop-organization-logo-button"
+                                class="secondary-action crop-image-button"
+                                type="button"
+                                hidden
+                            >
+                                Atur / Crop Logo
+                            </button>
+
+                            <small>
+                                Format yang didukung: JPG, PNG, atau WEBP.
+                            </small>
+
+                            <button
+                                id="remove-organization-logo-button"
+                                class="remove-photo-button"
+                                type="button"
+                                hidden
+                            >
+                                Hapus Logo
+                            </button>
+
+                            <input
+                                id="remove-organization-logo"
+                                name="remove_organization_logo"
+                                type="checkbox"
+                                hidden
+                            >
+
+                            <input
+                                id="organization-logo-url"
+                                name="organization_logo_url"
+                                type="hidden"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="member-form__single-column">
+                        <label>
+                            Nama Asosiasi/Organisasi *
+                            <input
+                                id="organization-name"
+                                name="organization_name"
+                                required
+                            >
+                        </label>
+
+                        <label>
+                            Nama Ketua Asosiasi/Organisasi
+                            <input
+                                id="organization-chair-name"
+                                name="organization_chair_name"
+                            >
+                        </label>
+
+                        <label>
+                            Periode Jabatan Ketua
+                            <input
+                                id="organization-chair-period"
+                                name="organization_chair_period"
+                                placeholder="Contoh: 2023-2028"
+                            >
+                        </label>
+
+                        <label>
+                            Jumlah Anggota Keseluruhan
+                            <input
+                                id="organization-member-count"
+                                name="organization_member_count"
+                                type="number"
+                                min="0"
+                            >
+                        </label>
+
+                        <label>
+                            Nomor HP/WA/Telp Contact Person
+                            <input
+                                id="organization-contact-phone"
+                                name="organization_contact_phone"
+                            >
+                        </label>
+
+                        <label>
+                            E-mail Asosiasi/Organisasi
+                            <input
+                                id="organization-email"
+                                name="organization_email"
+                                type="email"
+                            >
+                        </label>
+
+                        <label class="member-form__full">
+                            Alamat Kantor Asosiasi/Organisasi
+                            <textarea
+                                id="organization-address"
+                                name="organization_address"
+                                rows="3"
+                            ></textarea>
+                        </label>
+                    </div>
+                </section>
+
+                <section
+                    class="form-section member-form-panel"
+                    data-form-panel="documents"
+                    hidden
+                >
+                    <div class="form-section__heading">
+                        <h3>Dokumen</h3>
+                        <p>Masukkan link dokumen pendukung anggota.</p>
+                    </div>
+
+                    <div class="member-form__single-column">
+                        <label>
+                            Surat Penunjukan dari Asosiasi/Organisasi yang Diwakili
+                            <input
+                                id="appointment-letter-url"
+                                name="appointment_letter_url"
+                                type="url"
+                            >
+                            <small>
+                                Masukkan URL file PDF yang tersimpan di penyimpanan dokumen.
+                            </small>
+                        </label>
+
+                        <label>
+                            Surat Pernyataan Keabsahan Informasi
+                            <input
+                                id="statement-letter-url"
+                                name="statement_letter_url"
+                                type="url"
+                                placeholder="https://domain.com/surat-pernyataan.pdf"
+                            >
+                            <small>
+                                Masukkan URL file PDF yang tersimpan di penyimpanan dokumen.
+                            </small>
+                        </label>
+                    </div>
+                </section>
+
+                <div class="member-form-navigation">
+                    <button
+                        type="button"
+                        id="member-form-back"
+                        class="secondary-action"
+                        hidden
+                    >
+                        Kembali
+                    </button>
+
+                    <button
+                        type="button"
+                        id="member-form-next"
+                        class="primary-action"
+                    >
+                        Lanjut
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="member-form-submit"
+                        class="primary-action"
+                        hidden
+                    >
+                        Simpan Data
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div
+        id="delete-member-modal"
+        class="app-modal"
+        hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-member-title"
+    >
+        <div class="app-modal__content app-modal__content--small">
+            <h2 id="delete-member-title">
+                Hapus Data Anggota?
+            </h2>
+
+            <p>
+                Data anggota akan dihapus permanen dan tidak dapat
+                dikembalikan.
+            </p>
+
+            <form id="delete-member-form" method="post">
+                <div class="app-modal__actions">
+                    <button
+                        id="delete-member-cancel"
+                        class="modal-button modal-button--secondary"
+                        type="button"
+                    >
+                        Batal
+                    </button>
+
+                    <button
+                        class="modal-button modal-button--danger"
+                        type="submit"
+                    >
+                        Ya, Hapus
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div
+        id="leave-member-modal"
+        class="app-modal"
+        hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="leave-member-title"
+    >
+        <div class="app-modal__content app-modal__content--small">
+            <h2 id="leave-member-title">
+                Data Belum Disimpan
+            </h2>
+
+            <p>
+                Data yang sudah diisi belum disimpan.
+                Apakah Anda yakin ingin keluar tanpa menyimpan?
+            </p>
+
+            <div class="app-modal__actions">
+                <button
+                    id="leave-member-cancel"
+                    class="modal-button modal-button--secondary"
+                    type="button"
+                >
+                    Tidak
+                </button>
+
+                <button
+                    id="leave-member-save"
+                    class="modal-button modal-button--primary"
+                    type="button"
+                >
+                    Simpan Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div
+        id="detail-member-modal"
+        class="app-modal"
+        hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="detail-member-title"
+    >
+        <div class="app-modal__content app-modal__content--wide">
+            <div class="app-modal__header">
+                <h2 id="detail-member-title">
+                    Detail Anggota Dewan SDA Nasional
+                </h2>
+
+                <button
+                    id="detail-member-close"
+                    class="modal-close"
+                    type="button"
+                    aria-label="Tutup detail"
+                >
+                    ×
+                </button>
+            </div>
+
+            <<div
+                id="detail-tabs"
+                class="detail-tabs"
+                role="tablist"
+            >
+                <button
+                    type="button"
+                    class="detail-tab is-active"
+                    data-detail-tab="profile"
+                >
+                    Profile Perwakilan
+                </button>
+
+                <button
+                    type="button"
+                    class="detail-tab"
+                    data-detail-tab="organization"
+                >
+                    Profile Organisasi
+                </button>
+
+                <button
+                    type="button"
+                    class="detail-tab"
+                    data-detail-tab="documents"
+                >
+                    Dokumen
+                </button>
+            </div>
+
+            <div class="detail-profile">
+                <img
+                    id="detail-photo"
+                    class="detail-profile__photo"
+                    src="{{ url_for(
+                        'static',
+                        filename='assets/icons/user.png'
+                    ) }}"
+                    alt=""
+                >
+
+                <h3 id="detail-name">-</h3>
+                <p id="detail-category">-</p>
+            </div>
+
+            <section
+                id="government-detail-content"
+                class="government-detail-content"
+                hidden
+            >
+                <div class="government-detail-images">
+                    <div class="government-detail-image">
+                        <img
+                            id="government-detail-photo"
+                            src="{{ url_for(
+                                'static',
+                                filename='assets/icons/user.png'
+                            ) }}"
+                            alt="Foto menteri"
+                        >
+                        <span>Foto Menteri</span>
+                    </div>
+
+                    <div class="government-detail-image">
+                        <img
+                            id="government-detail-logo"
+                            src="{{ url_for(
+                                'static',
+                                filename='assets/icons/organization.png'
+                            ) }}"
+                            alt="Logo kementerian"
+                        >
+                        <span>Logo Kementerian</span>
+                    </div>
+                </div>
+
+                <h3 class="detail-section-title">
+                    Profil Anggota Pemerintah
+                </h3>
+
+                <dl class="detail-list">
+                    <div>
+                        <dt>Nama Menteri</dt>
+                        <dd id="government-detail-name">-</dd>
+                    </div>
+
+                    <div>
+                        <dt>Jabatan</dt>
+                        <dd id="government-detail-position">-</dd>
+                    </div>
+
+                    <div class="detail-list__full">
+                        <dt>Kementerian / Lembaga</dt>
+                        <dd id="government-detail-institution">-</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section
+                class="detail-card detail-panel is-active"
+                data-detail-panel="profile"
+            >
+                <h3 class="detail-section-title">
+                    Profile Perwakilan
+                </h3>
+
+                <dl class="detail-list">
+                <div>
+                    <dt>Nama Lengkap</dt>
+                    <dd id="detail-profile-name">-</dd>
+                </div>
+
+                <div>
+                    <dt>NIK / Identitas</dt>
+                    <dd id="detail-identity-number">-</dd>
+                </div>
+
+                <div>
+                    <dt>Nomor HP (WA) / Telp</dt>
+                    <dd id="detail-phone">-</dd>
+                </div>
+
+                <div>
+                    <dt>Alamat E-mail</dt>
+                    <dd id="detail-email">-</dd>
+                </div>
+
+                <div>
+                    <dt>Nomor Keanggotaan</dt>
+                    <dd id="detail-membership-number">-</dd>
+                </div>
+
+                <div>
+                    <dt>Periode Penugasan</dt>
+                    <dd id="detail-assignment-period">-</dd>
+                </div>
+                </dl>
+            </section>
+
+            <div
+                class="detail-organization-logo detail-panel"
+                data-detail-panel="organization"
+                hidden
+            >
+                <img
+                    id="detail-organization-logo"
+                    src="{{ url_for(
+                        'static',
+                        filename='assets/icons/organization.png'
+                    ) }}"
+                    alt="Logo organisasi"
+                >
+            </div>
+
+            <section
+                class="detail-card detail-panel"
+                data-detail-panel="organization"
+                hidden
+            >
+                <h3 class="detail-section-title">
+                    Profile Organisasi
+                </h3>
+
+                <dl class="detail-list">
+                <div class="detail-list__full">
+                    <dt>Nama Asosiasi/Organisasi</dt>
+                    <dd id="detail-organization-name">-</dd>
+                </div>
+
+                <div>
+                    <dt>Alamat Kantor Organisasi</dt>
+                    <dd id="detail-organization-address">-</dd>
+                </div>
+
+                <div>
+                    <dt>Nama Ketua</dt>
+                    <dd id="detail-organization-chair-name">-</dd>
+                </div>
+
+                <div>
+                    <dt>Periode Jabatan Ketua</dt>
+                    <dd id="detail-organization-chair-period">-</dd>
+                </div>
+
+                <div>
+                    <dt>Jumlah Anggota Keseluruhan</dt>
+                    <dd id="detail-organization-member-count">-</dd>
+                </div>
+
+                <div>
+                    <dt>Contact Person</dt>
+                    <dd id="detail-organization-contact-phone">-</dd>
+                </div>
+
+                <div>
+                    <dt>E-mail Organisasi</dt>
+                    <dd id="detail-organization-email">-</dd>
+                </div>
+                </dl>
+            </section>
+
+            <section
+                class="detail-documents detail-panel"
+                data-detail-panel="documents"
+                hidden
+            >
+                <h3>Dokumen</h3>
+
+                <a
+                    id="detail-appointment-letter"
+                    href="#"
+                    target="_blank"
+                    rel="noopener"
+                    hidden
+                >
+                    Surat Penunjukan PDF
+                </a>
+
+                <a
+                    id="detail-statement-letter"
+                    href="#"
+                    target="_blank"
+                    rel="noopener"
+                    hidden
+                >
+                    Surat Pernyataan PDF
+                </a>
+            </section>
+        </div>
+    </div>
+
+    <div
+        id="image-crop-modal"
+        class="app-modal"
+        hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="image-crop-title"
+    >
+        <div class="app-modal__content app-modal__content--crop">
+            <div class="app-modal__header">
+                <h2 id="image-crop-title">
+                    Atur Gambar
+                </h2>
+
+                <button
+                    id="image-crop-close"
+                    class="modal-close"
+                    type="button"
+                    aria-label="Tutup crop"
+                >
+                    ×
+                </button>
+            </div>
+
+            <div class="image-crop-area">
+                <img
+                    id="image-crop-preview"
+                    src=""
+                    alt="Preview gambar yang akan dipotong"
+                >
+            </div>
+
+            <div class="image-crop-actions">
+                <button
+                    id="image-crop-cancel"
+                    class="modal-button modal-button--secondary"
+                    type="button"
+                >
+                    Batal
+                </button>
+
+                <button
+                    id="image-crop-apply"
+                    class="modal-button modal-button--primary"
+                    type="button"
+                >
+                    Gunakan Hasil Crop
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script id="members-data" type="application/json">
+        {{ members | list | tojson }}
+    </script>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
+
+<script src="{{ url_for(
+    'static',
+    filename='js/umum.js'
+) }}"></script>
+
+<script src="{{ url_for(
+    'static',
+    filename='js/crop_gambar.js'
+) }}"></script>
+
+<script src="{{ url_for(
+    'static',
+    filename='js/data_anggota.js'
+) }}"></script>
+{% endblock %}

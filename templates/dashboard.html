@@ -1,0 +1,30 @@
+
+
+{% if page_type == "dashboard" %}
+                <section
+                    class="summary-grid"
+                    aria-label="Ringkasan anggota"
+                >
+                    <article class="summary-card">
+                        <p>Total Anggota Terdaftar</p>
+                        <strong>{{ total_members }}</strong>
+                    </article>
+
+                    <article class="summary-card">
+                        <p>Anggota Pemerintah</p>
+                        <strong>{{ government_members }}</strong>
+                    </article>
+
+                    <article class="summary-card">
+                        <p>Anggota Non-Pemerintah</p>
+                        <strong>{{ non_government_members }}</strong>
+                    </article>
+
+                    <article class="summary-card">
+                        <p>Anggota Pemerintah Daerah</p>
+                        <strong>
+                            {{ regional_government_members }}
+                        </strong>
+                    </article>
+                </section>
+            {% endif %}

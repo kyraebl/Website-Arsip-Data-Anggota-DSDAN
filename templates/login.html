@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Login Admin{% endblock %}
+
+{% block body_class %}login-page{% endblock %}
+
+{% block styles %}
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/login.css') }}"
+>
+{% endblock %}
+
+{% block content %}
+<main class="login-page__content">
+    <section class="login-card" aria-labelledby="login-title">
+        <div class="login-card__brand">
+            <img
+                class="login-card__logo"
+                src="{{ url_for(
+                    'static',
+                    filename='assets/brand/logo-dsdan.png'
+                ) }}"
+                alt="Logo Dewan Sumber Daya Air Nasional"
+            >
+        </div>
+
+        <h1 id="login-title">Dashboard Admin</h1>
+
+        <p class="login-card__description">
+            Sistem Manajemen Database Dewan SDA Nasional
+        </p>
+
+        {% with messages = get_flashed_messages(
+            with_categories=true
+        ) %}
+            {% if messages %}
+                <div class="login-alert" role="alert">
+                    {% for category, message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form
+            class="login-form"
+            method="post"
+            action="{{ url_for('login') }}"
+        >
+            <div class="form-field">
+                <label for="email">EMAIL</label>
+
+                <div class="input-wrapper">
+                    <img
+                        class="input-icon"
+                        src="{{ url_for(
+                            'static',
+                            filename='assets/icons/user.png'
+                        ) }}"
+                        alt=""
+                    >
+
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value="{{ request.form.get('email', '') }}"
+                        placeholder="Masukkan email"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label for="password">KATA SANDI</label>
+
+                <div class="input-wrapper">
+                    <img
+                        class="input-icon"
+                        src="{{ url_for(
+                            'static',
+                            filename='assets/icons/padlock.png'
+                        ) }}"
+                        alt=""
+                    >
+
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="Masukkan kata sandi"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <button
+                        id="password-toggle"
+                        class="password-toggle"
+                        type="button"
+                        aria-label="Tampilkan kata sandi"
+                    >
+                        <img
+                            id="password-toggle-icon"
+                            src="{{ url_for(
+                                'static',
+                                filename='assets/icons/view.png'
+                            ) }}"
+                            alt=""
+                        >
+                    </button>
+                </div>
+            </div>
+
+            <button class="login-button" type="submit">
+                Masuk
+            </button>
+        </form>
+
+        <p class="login-card__notice">
+            Halaman ini hanya untuk pengurus yang berwenang
+        </p>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+{% endblock %}
