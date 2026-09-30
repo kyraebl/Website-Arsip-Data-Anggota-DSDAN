@@ -165,7 +165,46 @@
             </h2>
 
             {% if page_type == "members" %}
-                <section class="member-actions" aria-label="Aksi data anggota">
+                <div class="member-category-toolbar">
+                    <section
+                        class="member-category-tabs"
+                        role="tablist"
+                        aria-label="Kategori data anggota"
+                    >
+                        <button
+                            class="member-category-tab member-category-tab--active"
+                            type="button"
+                            role="tab"
+                            aria-selected="true"
+                            aria-controls="category-non-government"
+                            data-member-category="Non-Pemerintah"
+                        >
+                            Anggota Non-Pemerintah
+                        </button>
+
+                        <button
+                            class="member-category-tab"
+                            type="button"
+                            role="tab"
+                            aria-selected="false"
+                            aria-controls="category-government"
+                            data-member-category="Pemerintah"
+                        >
+                            Anggota Pemerintah
+                        </button>
+
+                        <button
+                            class="member-category-tab"
+                            type="button"
+                            role="tab"
+                            aria-selected="false"
+                            aria-controls="category-regional-government"
+                            data-member-category="Pemerintah Daerah"
+                        >
+                            Anggota Pemerintah Daerah
+                        </button>
+                    </section>
+
                     <button
                         class="primary-action"
                         type="button"
@@ -174,46 +213,7 @@
                         <span aria-hidden="true">+</span>
                         Tambah Data
                     </button>
-                </section>
-
-                <section
-                    class="member-category-tabs"
-                    role="tablist"
-                    aria-label="Kategori data anggota"
-                >
-                    <button
-                        class="member-category-tab member-category-tab--active"
-                        type="button"
-                        role="tab"
-                        aria-selected="true"
-                        aria-controls="category-non-government"
-                        data-member-category="Non-Pemerintah"
-                    >
-                        Anggota Non-Pemerintah
-                    </button>
-
-                    <button
-                        class="member-category-tab"
-                        type="button"
-                        role="tab"
-                        aria-selected="false"
-                        aria-controls="category-government"
-                        data-member-category="Pemerintah"
-                    >
-                        Anggota Pemerintah
-                    </button>
-
-                    <button
-                        class="member-category-tab"
-                        type="button"
-                        role="tab"
-                        aria-selected="false"
-                        aria-controls="category-regional-government"
-                        data-member-category="Pemerintah Daerah"
-                    >
-                        Anggota Pemerintah Daerah
-                    </button>
-                </section>
+                </div>
             {% endif %}
 
             
@@ -380,6 +380,24 @@
                                                 >
                                                     Lihat Detail
                                                 </button>
+
+                                                <button
+                                                    class="icon-action icon-action--edit"
+                                                    type="button"
+                                                    aria-label="Edit anggota pemerintah"
+                                                    data-member-id="{{ member.id }}"
+                                                >
+                                                    Edit
+                                                </button>
+
+                                                <button
+                                                    class="icon-action icon-action--delete"
+                                                    type="button"
+                                                    aria-label="Hapus anggota pemerintah"
+                                                    data-member-id="{{ member.id }}"
+                                                >
+                                                    Hapus
+                                                </button>
                                             </td>
                                         </tr>
                                     {% else %}
@@ -407,7 +425,6 @@
                                         <th>No</th>
                                         <th>Nama Gubernur</th>
                                         <th>Wilayah</th>
-                                        <th>Logo</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -421,17 +438,7 @@
                                             <td>{{ loop.index }}</td>
                                             <td>{{ member.name }}</td>
                                             <td>{{ member.institution }}</td>
-                                            <td>
-                                                {% if member.organization_logo_url or member.photo_url %}
-                                                    <img
-                                                        class="member-table__logo"
-                                                        src="{{ member.organization_logo_url or member.photo_url }}"
-                                                        alt="Logo {{ member.institution }}"
-                                                    >
-                                                {% else %}
-                                                    <span>-</span>
-                                                {% endif %}
-                                            </td>
+
                                             <td class="table-actions">
                                                 <button
                                                     class="detail-button"
@@ -440,11 +447,29 @@
                                                 >
                                                     Lihat Detail
                                                 </button>
+
+                                                <button
+                                                    class="icon-action icon-action--edit"
+                                                    type="button"
+                                                    aria-label="Edit anggota pemerintah daerah"
+                                                    data-member-id="{{ member.id }}"
+                                                >
+                                                    Edit
+                                                </button>
+
+                                                <button
+                                                    class="icon-action icon-action--delete"
+                                                    type="button"
+                                                    aria-label="Hapus anggota pemerintah daerah"
+                                                    data-member-id="{{ member.id }}"
+                                                >
+                                                    Hapus
+                                                </button>
                                             </td>
                                         </tr>
                                     {% else %}
                                         <tr class="empty-row">
-                                            <td colspan="5">
+                                            <td colspan="4">
                                                 Belum ada data pemerintah daerah.
                                             </td>
                                         </tr>
@@ -501,7 +526,16 @@
                 <div class="table-footer">
                     <span>
                         Menampilkan
-                        <strong>{{ members|length }}</strong>
+                        <strong id="member-visible-count">
+                            {{ members
+                                | selectattr(
+                                    "category",
+                                    "equalto",
+                                    "Non-Pemerintah"
+                                )
+                                | list
+                                | length }}
+                        </strong>
                         data
                     </span>
 
@@ -657,6 +691,85 @@
                 >
                     Batal
                 </button>
+                <button
+                    class="modal-button modal-button--primary"
+                    type="submit"
+                >
+                    Simpan Data
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div
+    id="regional-government-member-modal"
+    class="app-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="regional-government-member-title"
+>
+    <div class="app-modal__content app-modal__content--small">
+        <div class="app-modal__header">
+            <h2 id="regional-government-member-title">
+                Tambah Anggota Pemerintah Daerah
+            </h2>
+
+            <button
+                id="regional-government-member-close"
+                class="modal-close"
+                type="button"
+                aria-label="Tutup"
+            >
+                ×
+            </button>
+        </div>
+
+        <form
+            id="regional-government-member-form"
+            method="post"
+            action="{{ url_for('tambah_pemerintah_daerah') }}"
+            enctype="multipart/form-data"
+            class="simple-member-form"
+        >
+            <label>
+                Nama Gubernur *
+                <input name="full_name" required>
+            </label>
+
+            <label>
+                Nama Daerah / Wilayah *
+                <input name="institution" required>
+            </label>
+
+            <label>
+                Foto Gubernur
+                <input
+                    name="photo_file"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                >
+            </label>
+
+            <label>
+                Logo Daerah
+                <input
+                    name="organization_logo_file"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                >
+            </label>
+
+            <div class="app-modal__actions">
+                <button
+                    id="regional-government-member-cancel"
+                    class="modal-button modal-button--secondary"
+                    type="button"
+                >
+                    Batal
+                </button>
+
                 <button
                     class="modal-button modal-button--primary"
                     type="submit"
@@ -881,14 +994,6 @@
                                 id="member-email"
                                 name="email"
                                 type="email"
-                            >
-                        </label>
-
-                        <label>
-                            Nomor Keanggotaan Asosiasi/Organisasi
-                            <input
-                                id="member-membership-number"
-                                name="membership_number"
                             >
                         </label>
 
@@ -1209,14 +1314,10 @@
                 </button>
             </div>
 
-            <<div
-                id="detail-tabs"
-                class="detail-tabs"
-                role="tablist"
-            >
+            <div id="detail-tabs" class="detail-tabs">
                 <button
                     type="button"
-                    class="detail-tab is-active"
+                    class="detail-tab"
                     data-detail-tab="profile"
                 >
                     Profile Perwakilan
@@ -1239,28 +1340,36 @@
                 </button>
             </div>
 
-            <div class="detail-profile">
-                <img
-                    id="detail-photo"
-                    class="detail-profile__photo"
-                    src="{{ url_for(
-                        'static',
-                        filename='assets/icons/user.png'
-                    ) }}"
-                    alt=""
-                >
-
-                <h3 id="detail-name">-</h3>
-                <p id="detail-category">-</p>
-            </div>
-
             <section
                 id="government-detail-content"
                 class="government-detail-content"
                 hidden
             >
-                <div class="government-detail-images">
-                    <div class="government-detail-image">
+                <div class="government-detail-tabs">
+                    <button
+                        type="button"
+                        class="government-detail-tab is-active"
+                        data-government-tab="minister"
+                    >
+                        Profile Menteri
+                    </button>
+
+                    <button
+                        type="button"
+                        class="government-detail-tab"
+                        data-government-tab="ministry"
+                    >
+                        Profile Kementerian
+                    </button>
+                </div>
+
+                <section
+                    class="government-detail-panel is-active"
+                    data-government-panel="minister"
+                >
+                    <div
+                        class="detail-organization-logo government-detail-photo"
+                    >
                         <img
                             id="government-detail-photo"
                             src="{{ url_for(
@@ -1269,43 +1378,155 @@
                             ) }}"
                             alt="Foto menteri"
                         >
-                        <span>Foto Menteri</span>
                     </div>
 
-                    <div class="government-detail-image">
+                    <div class="government-detail-card">
+                        <div class="government-detail-info">
+                            <dl class="detail-list">
+                                <div>
+                                    <dt>Nama Menteri/Kepala Lembaga</dt>
+                                    <dd id="government-detail-name">-</dd>
+                                </div>
+
+                                <div>
+                                    <dt>Jabatan</dt>
+                                    <dd id="government-detail-position">-</dd>
+                                </div>
+
+                            </dl>
+                        </div>
+                    </div>
+                </section>
+
+                <section
+                    class="government-detail-panel"
+                    data-government-panel="ministry"
+                    hidden
+                >
+                    <div
+                        class="detail-organization-logo government-detail-photo government-detail-photo--logo"
+                    >
                         <img
                             id="government-detail-logo"
                             src="{{ url_for(
                                 'static',
-                                filename='assets/icons/organization.png'
+                                filename='assets/brand/logo-dsdan.png'
                             ) }}"
                             alt="Logo kementerian"
                         >
-                        <span>Logo Kementerian</span>
                     </div>
+
+                    <div class="government-detail-card">
+                        <div class="government-detail-info">
+                            <dl class="detail-list">
+                                <div class="detail-list__full">
+                                    <dt>Nama Kementerian / Lembaga</dt>
+                                    <dd id="government-detail-ministry-name">-</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <section
+                id="regional-government-detail-content"
+                class="government-detail-content"
+                hidden
+            >
+                <div class="government-detail-tabs">
+                    <button
+                        type="button"
+                        class="government-detail-tab is-active"
+                        data-regional-tab="governor"
+                        aria-selected="true"
+                    >
+                        Profile Gubernur
+                    </button>
+
+                    <button
+                        type="button"
+                        class="government-detail-tab"
+                        data-regional-tab="region"
+                        aria-selected="false"
+                    >
+                        Profile Daerah
+                    </button>
                 </div>
 
-                <h3 class="detail-section-title">
-                    Profil Anggota Pemerintah
-                </h3>
-
-                <dl class="detail-list">
-                    <div>
-                        <dt>Nama Menteri</dt>
-                        <dd id="government-detail-name">-</dd>
+                <section
+                    class="government-detail-panel"
+                    data-regional-panel="governor"
+                >
+                    <div
+                        class="detail-organization-logo government-detail-photo"
+                    >
+                        <img
+                            id="regional-detail-photo"
+                            src="{{ url_for(
+                                'static',
+                                filename='assets/icons/user.png'
+                            ) }}"
+                            alt="Foto gubernur"
+                        >
                     </div>
 
-                    <div>
-                        <dt>Jabatan</dt>
-                        <dd id="government-detail-position">-</dd>
+                    <div class="government-detail-card">
+                        <div class="government-detail-info">
+                            <dl class="detail-list">
+                                <div>
+                                    <dt>Nama Gubernur</dt>
+                                    <dd id="regional-detail-name">-</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </section>
+
+                <section
+                    class="government-detail-panel"
+                    data-regional-panel="region"
+                    hidden
+                >
+                    <div
+                        class="detail-organization-logo government-detail-photo"
+                    >
+                        <img
+                            id="regional-detail-logo"
+                            src="{{ url_for(
+                                'static',
+                                filename='assets/brand/logo-dsdan.png'
+                            ) }}"
+                            alt="Logo daerah"
+                        >
                     </div>
 
-                    <div class="detail-list__full">
-                        <dt>Kementerian / Lembaga</dt>
-                        <dd id="government-detail-institution">-</dd>
+                    <div class="government-detail-card">
+                        <div class="government-detail-info">
+                            <dl class="detail-list">
+                                <div>
+                                    <dt>Wilayah</dt>
+                                    <dd id="regional-detail-region">-</dd>
+                                </div>
+                            </dl>
+                        </div>
                     </div>
-                </dl>
+                </section>
             </section>
+
+            <div
+                class="detail-organization-logo detail-panel"
+                data-detail-panel="profile"
+            >
+                <img
+                    id="detail-photo"
+                    src="{{ url_for(
+                        'static',
+                        filename='assets/icons/user.png'
+                    ) }}"
+                    alt="Foto perwakilan"
+                >
+            </div>
 
             <section
                 class="detail-card detail-panel is-active"
@@ -1316,35 +1537,30 @@
                 </h3>
 
                 <dl class="detail-list">
-                <div>
-                    <dt>Nama Lengkap</dt>
-                    <dd id="detail-profile-name">-</dd>
-                </div>
+                    <div>
+                        <dt>Nama Lengkap</dt>
+                        <dd id="detail-profile-name">-</dd>
+                    </div>
 
-                <div>
-                    <dt>NIK / Identitas</dt>
-                    <dd id="detail-identity-number">-</dd>
-                </div>
+                    <div>
+                        <dt>NIK / Identitas</dt>
+                        <dd id="detail-identity-number">-</dd>
+                    </div>
 
-                <div>
-                    <dt>Nomor HP (WA) / Telp</dt>
-                    <dd id="detail-phone">-</dd>
-                </div>
+                    <div>
+                        <dt>Nomor HP (WA) / Telp</dt>
+                        <dd id="detail-phone">-</dd>
+                    </div>
 
-                <div>
-                    <dt>Alamat E-mail</dt>
-                    <dd id="detail-email">-</dd>
-                </div>
+                    <div>
+                        <dt>Alamat E-mail</dt>
+                        <dd id="detail-email">-</dd>
+                    </div>
 
-                <div>
-                    <dt>Nomor Keanggotaan</dt>
-                    <dd id="detail-membership-number">-</dd>
-                </div>
-
-                <div>
-                    <dt>Periode Penugasan</dt>
-                    <dd id="detail-assignment-period">-</dd>
-                </div>
+                    <div>
+                        <dt>Periode Penugasan</dt>
+                        <dd id="detail-assignment-period">-</dd>
+                    </div>
                 </dl>
             </section>
 
@@ -1357,7 +1573,7 @@
                     id="detail-organization-logo"
                     src="{{ url_for(
                         'static',
-                        filename='assets/icons/organization.png'
+                        filename='assets/brand/logo-dsdan.png'
                     ) }}"
                     alt="Logo organisasi"
                 >
@@ -1373,40 +1589,40 @@
                 </h3>
 
                 <dl class="detail-list">
-                <div class="detail-list__full">
-                    <dt>Nama Asosiasi/Organisasi</dt>
-                    <dd id="detail-organization-name">-</dd>
-                </div>
+                    <div class="detail-list__full">
+                        <dt>Nama Asosiasi / Organisasi</dt>
+                        <dd id="detail-organization-name">-</dd>
+                    </div>
 
-                <div>
-                    <dt>Alamat Kantor Organisasi</dt>
-                    <dd id="detail-organization-address">-</dd>
-                </div>
+                    <div>
+                        <dt>Alamat Kantor Organisasi</dt>
+                        <dd id="detail-organization-address">-</dd>
+                    </div>
 
-                <div>
-                    <dt>Nama Ketua</dt>
-                    <dd id="detail-organization-chair-name">-</dd>
-                </div>
+                    <div>
+                        <dt>Nama Ketua</dt>
+                        <dd id="detail-organization-chair-name">-</dd>
+                    </div>
 
-                <div>
-                    <dt>Periode Jabatan Ketua</dt>
-                    <dd id="detail-organization-chair-period">-</dd>
-                </div>
+                    <div>
+                        <dt>Periode Jabatan Ketua</dt>
+                        <dd id="detail-organization-chair-period">-</dd>
+                    </div>
 
-                <div>
-                    <dt>Jumlah Anggota Keseluruhan</dt>
-                    <dd id="detail-organization-member-count">-</dd>
-                </div>
+                    <div>
+                        <dt>Jumlah Anggota Keseluruhan</dt>
+                        <dd id="detail-organization-member-count">-</dd>
+                    </div>
 
-                <div>
-                    <dt>Contact Person</dt>
-                    <dd id="detail-organization-contact-phone">-</dd>
-                </div>
+                    <div>
+                        <dt>Contact Person</dt>
+                        <dd id="detail-organization-contact-phone">-</dd>
+                    </div>
 
-                <div>
-                    <dt>E-mail Organisasi</dt>
-                    <dd id="detail-organization-email">-</dd>
-                </div>
+                    <div>
+                        <dt>E-mail Organisasi</dt>
+                        <dd id="detail-organization-email">-</dd>
+                    </div>
                 </dl>
             </section>
 

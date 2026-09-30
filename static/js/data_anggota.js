@@ -11,6 +11,12 @@ const memberTypeOptions = document.querySelectorAll(
 const governmentMemberModal = document.querySelector(
     "#government-member-modal",
 );
+const governmentMemberForm = document.querySelector(
+    "#government-member-form",
+);
+const governmentMemberTitle = document.querySelector(
+    "#government-member-title",
+);
 const governmentMemberClose = document.querySelector(
     "#government-member-close",
 );
@@ -25,9 +31,6 @@ const memberCategory = document.querySelector(
 );
 const identityNumber = document.querySelector(
     "#member-identity-number",
-);
-const membershipNumber = document.querySelector(
-    "#member-membership-number",
 );
 const assignmentPeriod = document.querySelector(
     "#member-assignment-period",
@@ -107,11 +110,34 @@ const removeOrganizationLogoInput = document.querySelector(
     "#remove-organization-logo",
 );
 
+const regionalGovernmentMemberModal = document.querySelector(
+    "#regional-government-member-modal",
+);
+
+const regionalGovernmentMemberForm = document.querySelector(
+    "#regional-government-member-form",
+);
+
+const regionalGovernmentMemberTitle = document.querySelector(
+    "#regional-government-member-title",
+);
+
+const regionalGovernmentMemberClose = document.querySelector(
+    "#regional-government-member-close",
+);
+
+const regionalGovernmentMemberCancel = document.querySelector(
+    "#regional-government-member-cancel",
+);
+
 const memberRows = Array.from(
     document.querySelectorAll(
         ".member-category-panel tr[data-category], " +
         "#member-table-body tr[data-category]",
     ),
+);
+const memberVisibleCount = document.querySelector(
+    "#member-visible-count",
 );
 
 function updateMemberRows() {
@@ -126,6 +152,28 @@ function updateMemberRows() {
         const matchesSearch = rowText.includes(keyword);
         row.hidden = !matchesSearch;
     });
+
+    const selectedTab = Array.from(memberCategoryTabs).find(
+        (tab) => tab.getAttribute("aria-selected") === "true",
+    );
+    const selectedPanel = selectedTab
+        ? document.getElementById(
+            selectedTab.getAttribute("aria-controls"),
+        )
+        : null;
+    const rowsToCount = selectedPanel
+        ? Array.from(
+            selectedPanel.querySelectorAll("tr[data-category]"),
+        )
+        : memberRows;
+    const visibleRows = rowsToCount.filter(
+        (row) => !row.hidden
+            && row.textContent.toLowerCase().includes(keyword),
+    );
+
+    if (memberVisibleCount) {
+        memberVisibleCount.textContent = String(visibleRows.length);
+    }
 }
 
 if (searchInput) {
@@ -162,6 +210,7 @@ memberCategoryTabs.forEach((tab) => {
 
         tab.classList.add("member-category-tab--active");
         tab.setAttribute("aria-selected", "true");
+        updateMemberRows();
     });
 });
 
@@ -199,6 +248,27 @@ const governmentDetailContent = document.querySelector(
     "#government-detail-content",
 );
 
+const regionalGovernmentDetailContent =
+    document.querySelector(
+        "#regional-government-detail-content",
+    );
+
+const regionalDetailPhoto = document.querySelector(
+    "#regional-detail-photo",
+);
+
+const regionalDetailLogo = document.querySelector(
+    "#regional-detail-logo",
+);
+
+const regionalDetailName = document.querySelector(
+    "#regional-detail-name",
+);
+
+const regionalDetailRegion = document.querySelector(
+    "#regional-detail-region",
+);
+
 const governmentDetailPhoto = document.querySelector(
     "#government-detail-photo",
 );
@@ -215,13 +285,47 @@ const governmentDetailPosition = document.querySelector(
     "#government-detail-position",
 );
 
-const governmentDetailInstitution = document.querySelector(
-    "#government-detail-institution",
+const governmentDetailMinistryName = document.querySelector(
+    "#government-detail-ministry-name",
 );
+const governmentDetailTabs =
+    governmentDetailContent
+        ? governmentDetailContent.querySelectorAll(
+            ".government-detail-tab",
+        )
+        : [];
+
+const governmentDetailPanels =
+    governmentDetailContent
+        ? governmentDetailContent.querySelectorAll(
+            ".government-detail-panel",
+        )
+        : [];
+
+const regionalDetailTabs =
+    regionalGovernmentDetailContent
+        ? regionalGovernmentDetailContent.querySelectorAll(
+            ".government-detail-tab",
+        )
+        : [];
+
+const regionalDetailPanels =
+    regionalGovernmentDetailContent
+        ? regionalGovernmentDetailContent.querySelectorAll(
+            ".government-detail-panel",
+        )
+        : [];
+
 const detailMemberClose = document.querySelector(
     "#detail-member-close",
 );
 const detailProfile = document.querySelector(".detail-profile");
+const detailTabs = Array.from(
+    document.querySelectorAll(".detail-tab"),
+);
+const detailPanels = Array.from(
+    document.querySelectorAll(".detail-panel"),
+);
 const membersDataElement = document.querySelector("#members-data");
 
 const memberFormFields = {
@@ -324,11 +428,6 @@ function openMemberForm(member) {
     setFieldValue(
         identityNumber,
         isEdit ? member.identity_number : "",
-    );
-
-    setFieldValue(
-        membershipNumber,
-        isEdit ? member.membership_number : "",
     );
 
     setFieldValue(
@@ -482,173 +581,411 @@ function openMemberForm(member) {
     showMemberFormTab("profile");
 }
 
+function openGovernmentMemberForm(member) {
+    if (!governmentMemberModal || !governmentMemberForm) {
+        return;
+    }
+
+    const isEdit = Boolean(member);
+
+    governmentMemberForm.action = isEdit
+        ? `/anggota/${member.id}/edit-pemerintah`
+        : "/anggota/tambah-pemerintah";
+
+    if (governmentMemberTitle) {
+        governmentMemberTitle.textContent = isEdit
+            ? "Edit Anggota Pemerintah"
+            : "Tambah Anggota Pemerintah";
+    }
+
+    const fullNameInput =
+        governmentMemberForm.elements.full_name;
+
+    const institutionInput =
+        governmentMemberForm.elements.institution;
+
+    const positionInput =
+        governmentMemberForm.elements.position;
+
+    if (fullNameInput) {
+        fullNameInput.value = isEdit
+            ? member.name || ""
+            : "";
+    }
+
+    if (institutionInput) {
+        institutionInput.value = isEdit
+            ? member.institution || ""
+            : "";
+    }
+
+    if (positionInput) {
+        positionInput.value = isEdit
+            ? member.position || ""
+            : "";
+    }
+
+    const photoInput =
+        governmentMemberForm.elements.photo_file;
+
+    const logoInput =
+        governmentMemberForm.elements.organization_logo_file;
+
+    if (photoInput) {
+        photoInput.value = "";
+    }
+
+    if (logoInput) {
+        logoInput.value = "";
+    }
+
+    governmentMemberModal.hidden = false;
+}
+
+function openRegionalGovernmentMemberForm(member) {
+    if (
+        !regionalGovernmentMemberModal
+        || !regionalGovernmentMemberForm
+    ) {
+        return;
+    }
+
+    const isEdit = Boolean(member);
+
+    regionalGovernmentMemberForm.action = isEdit
+        ? `/anggota/${member.id}/edit-pemerintah-daerah`
+        : "/anggota/tambah-pemerintah-daerah";
+
+    if (regionalGovernmentMemberTitle) {
+        regionalGovernmentMemberTitle.textContent = isEdit
+            ? "Edit Anggota Pemerintah Daerah"
+            : "Tambah Anggota Pemerintah Daerah";
+    }
+
+    const fullNameInput =
+        regionalGovernmentMemberForm.elements.full_name;
+
+    const institutionInput =
+        regionalGovernmentMemberForm.elements.institution;
+
+    if (fullNameInput) {
+        fullNameInput.value = isEdit
+            ? member.name || ""
+            : "";
+    }
+
+    if (institutionInput) {
+        institutionInput.value = isEdit
+            ? member.institution || ""
+            : "";
+    }
+
+    const photoInput =
+        regionalGovernmentMemberForm.elements.photo_file;
+
+    const logoInput =
+        regionalGovernmentMemberForm.elements.organization_logo_file;
+
+    if (photoInput) {
+        photoInput.value = "";
+    }
+
+    if (logoInput) {
+        logoInput.value = "";
+    }
+
+    regionalGovernmentMemberModal.hidden = false;
+}
+
 document.querySelectorAll(".icon-action--edit").forEach((button) => {
     button.addEventListener("click", () => {
         const member = membersData.find(
             (item) => String(item.id) === button.dataset.memberId,
         );
 
-        if (member) {
-            openMemberForm(member);
-        }
-    });
-});
-
-document.querySelectorAll(".detail-button").forEach((button) => {
-    button.addEventListener("click", () => {
-        const member = membersData.find(
-            (item) => String(item.id) === button.dataset.memberId,
-        );
-
-        if (!member || !detailMemberModal) {
+        if (!member) {
             return;
         }
 
         if (member.category === "Pemerintah") {
-            if (detailTabsContainer) {
-                detailTabsContainer.hidden = true;
-            }
-
-            if (detailProfile) {
-                detailProfile.hidden = true;
-            }
-
-            detailPanels.forEach((panel) => {
-                panel.hidden = true;
-            });
-
-            if (governmentDetailContent) {
-                governmentDetailContent.hidden = false;
-            }
-
-            if (governmentDetailPhoto) {
-                governmentDetailPhoto.src =
-                    member.photo_url
-                    || "/static/assets/icons/user.png";
-            }
-
-            if (governmentDetailLogo) {
-                governmentDetailLogo.src =
-                    member.organization_logo_url
-                    || "/static/assets/icons/organization.png";
-            }
-
-            if (governmentDetailName) {
-                governmentDetailName.textContent =
-                    member.name || "-";
-            }
-
-            if (governmentDetailPosition) {
-                governmentDetailPosition.textContent =
-                    member.position || "-";
-            }
-
-            if (governmentDetailInstitution) {
-                governmentDetailInstitution.textContent =
-                    member.institution || "-";
-            }
-
-            detailMemberModal.hidden = false;
+            openGovernmentMemberForm(member);
             return;
         }
 
-        if (detailTabsContainer) {
-            detailTabsContainer.hidden = false;
+        if (member.category === "Pemerintah Daerah") {
+            openRegionalGovernmentMemberForm(member);
+            return;
         }
 
-        if (governmentDetailContent) {
-            governmentDetailContent.hidden = true;
-        }
+        openMemberForm(member);
+    });
+});
 
-        document.querySelector("#detail-name").textContent =
-            member.name || "-";
-        document.querySelector("#detail-profile-name").textContent =
-            member.name || "-";
-        document.querySelector("#detail-email").textContent =
-            member.email || "-";
-        document.querySelector("#detail-phone").textContent =
-            member.phone || "-";
+function findMemberById(memberId) {
+    const normalizedId = String(memberId).trim();
 
-        const detailPhoto = document.querySelector("#detail-photo");
-        const detailCategory = document.querySelector("#detail-category");
-        const detailIdentityNumber = document.querySelector(
-            "#detail-identity-number",
-        );
-        const detailMembershipNumber = document.querySelector(
-            "#detail-membership-number",
-        );
-        const detailAppointmentLetter = document.querySelector(
-            "#detail-appointment-letter",
-        );
-        const detailStatementLetter = document.querySelector(
-            "#detail-statement-letter",
-        );
+    return membersData.find(
+        (item) => String(item.id).trim() === normalizedId,
+    );
+}
 
-        detailCategory.textContent = member.category || "-";
+function openMemberDetail(member) {
+    if (!member || !detailMemberModal) {
+        return;
+    }
 
-        detailIdentityNumber.textContent =
-            member.identity_number || "-";
+    if (regionalGovernmentDetailContent) {
+        regionalGovernmentDetailContent.hidden = true;
+    }
 
-        detailMembershipNumber.textContent =
-            member.membership_number || "-";
+    const isGovernment =
+        member.category === "Pemerintah";
 
-        document.querySelector("#detail-assignment-period").textContent =
-            member.assignment_period || "-";
+    const isRegionalGovernment =
+        member.category === "Pemerintah Daerah";
 
-        document.querySelector("#detail-organization-name").textContent =
-            member.organization_name || "-";
+    if (detailTabsContainer) {
+        detailTabsContainer.hidden =
+            isGovernment || isRegionalGovernment;
+    }
 
-        document.querySelector(
-            "#detail-organization-address",
-        ).textContent = member.organization_address || "-";
+    if (governmentDetailContent) {
+        governmentDetailContent.hidden = !isGovernment;
+    }
 
-        document.querySelector(
-            "#detail-organization-chair-name",
-        ).textContent = member.organization_chair_name || "-";
+    if (regionalGovernmentDetailContent) {
+        regionalGovernmentDetailContent.hidden =
+            !isRegionalGovernment;
+    }
 
-        document.querySelector(
-            "#detail-organization-chair-period",
-        ).textContent = member.organization_chair_period || "-";
+    if (detailProfile) {
+        detailProfile.hidden =
+            isGovernment || isRegionalGovernment;
+    }
 
-        document.querySelector(
-            "#detail-organization-member-count",
-        ).textContent = member.organization_member_count ?? "-";
+    detailPanels.forEach((panel) => {
+        panel.hidden =
+            isGovernment || isRegionalGovernment;
+    });
 
-        document.querySelector(
-            "#detail-organization-contact-phone",
-        ).textContent = member.organization_contact_phone || "-";
-
-        document.querySelector(
-            "#detail-organization-email",
-        ).textContent = member.organization_email || "-";
-
-        detailPhoto.src = member.photo_url
-            || "/static/assets/icons/user.png";
-
-        const detailOrganizationLogo = document.querySelector(
-            "#detail-organization-logo",
-        );
-
-        if (detailOrganizationLogo) {
-            detailOrganizationLogo.src =
-                member.organization_logo_url
+    if (isGovernment) {
+        if (governmentDetailPhoto) {
+            governmentDetailPhoto.src =
+                member.photo_url
                 || "/static/assets/icons/user.png";
         }
 
+        if (governmentDetailLogo) {
+            governmentDetailLogo.src =
+                member.organization_logo_url
+                || "/static/assets/brand/logo-dsdan.png";
+        }
+
+        if (governmentDetailName) {
+            governmentDetailName.textContent =
+                member.name || "-";
+        }
+
+        if (governmentDetailPosition) {
+            governmentDetailPosition.textContent =
+                member.position || "-";
+        }
+
+        if (governmentDetailMinistryName) {
+            governmentDetailMinistryName.textContent =
+                member.institution || "-";
+        }
+
+        governmentDetailTabs.forEach((tab) => {
+            const isActive =
+                tab.dataset.governmentTab === "minister";
+
+            tab.classList.toggle(
+                "is-active",
+                isActive,
+            );
+
+            tab.setAttribute(
+                "aria-selected",
+                String(isActive),
+            );
+        });
+
+        governmentDetailPanels.forEach((panel) => {
+            panel.hidden =
+                panel.dataset.governmentPanel !== "minister";
+        });
+
+        detailMemberModal.hidden = false;
+        return;
+    }
+
+    if (isRegionalGovernment) {
+        if (regionalGovernmentDetailContent) {
+            regionalGovernmentDetailContent.hidden = false;
+            regionalDetailTabs.forEach((tab) => {
+                const isActive =
+                    tab.dataset.regionalTab === "governor";
+
+                tab.classList.toggle("is-active", isActive);
+                tab.setAttribute(
+                    "aria-selected",
+                    String(isActive),
+                );
+            });
+
+            regionalDetailPanels.forEach((panel) => {
+                panel.hidden =
+                    panel.dataset.regionalPanel !== "governor";
+            });
+        }
+
+        if (regionalDetailPhoto) {
+            regionalDetailPhoto.src =
+                member.photo_url
+                || "/static/assets/icons/user.png";
+        }
+
+        if (regionalDetailLogo) {
+            regionalDetailLogo.src =
+                member.organization_logo_url
+                || "/static/assets/brand/logo-dsdan.png";
+        }
+
+        if (regionalDetailName) {
+            regionalDetailName.textContent =
+                member.name || "-";
+        }
+
+        if (regionalDetailRegion) {
+            regionalDetailRegion.textContent =
+                member.institution || "-";
+        }
+
+        detailMemberModal.hidden = false;
+        return;
+    }
+
+    document.querySelector("#detail-profile-name").textContent =
+        member.name || "-";
+
+    document.querySelector("#detail-email").textContent =
+        member.email || "-";
+
+    document.querySelector("#detail-phone").textContent =
+        member.phone || "-";
+
+    document.querySelector(
+        "#detail-identity-number",
+    ).textContent = member.identity_number || "-";
+
+    document.querySelector(
+        "#detail-assignment-period",
+    ).textContent = member.assignment_period || "-";
+
+    document.querySelector(
+        "#detail-organization-name",
+    ).textContent = member.organization_name || "-";
+
+    document.querySelector(
+        "#detail-organization-address",
+    ).textContent = member.organization_address || "-";
+
+    document.querySelector(
+        "#detail-organization-chair-name",
+    ).textContent = member.organization_chair_name || "-";
+
+    document.querySelector(
+        "#detail-organization-chair-period",
+    ).textContent = member.organization_chair_period || "-";
+
+    document.querySelector(
+        "#detail-organization-member-count",
+    ).textContent =
+        member.organization_member_count ?? "-";
+
+    document.querySelector(
+        "#detail-organization-contact-phone",
+    ).textContent =
+        member.organization_contact_phone || "-";
+
+    document.querySelector(
+        "#detail-organization-email",
+    ).textContent =
+        member.organization_email || "-";
+
+    const detailPhoto = document.querySelector(
+        "#detail-photo",
+    );
+
+    if (detailPhoto) {
+        detailPhoto.src =
+            member.photo_url
+            || "/static/assets/icons/user.png";
+    }
+
+    const detailOrganizationLogo =
+        document.querySelector(
+            "#detail-organization-logo",
+        );
+
+    if (detailOrganizationLogo) {
+        detailOrganizationLogo.src =
+            member.organization_logo_url
+            || "/static/assets/brand/logo-dsdan.png";
+    }
+
+    const detailAppointmentLetter =
+        document.querySelector(
+            "#detail-appointment-letter",
+        );
+
+    const detailStatementLetter =
+        document.querySelector(
+            "#detail-statement-letter",
+        );
+
+    if (detailAppointmentLetter) {
         detailAppointmentLetter.hidden =
             !member.appointment_letter_url;
 
         detailAppointmentLetter.href =
             member.appointment_letter_url || "#";
+    }
 
+    if (detailStatementLetter) {
         detailStatementLetter.hidden =
             !member.statement_letter_url;
 
         detailStatementLetter.href =
-            member.statement_letter_url || "#";    
-        detailMemberModal.hidden = false;
-        showDetailTab("profile");
-    });
+            member.statement_letter_url || "#";
+    }
+
+    if (detailTabsContainer) {
+        detailTabsContainer.hidden = false;
+    }
+
+    if (governmentDetailContent) {
+        governmentDetailContent.hidden = true;
+    }
+
+    if (regionalGovernmentDetailContent) {
+        regionalGovernmentDetailContent.hidden = true;
+    }
+
+    showDetailTab("profile");
+    detailMemberModal.hidden = false;
+}
+
+document.addEventListener("click", (event) => {
+    const button = event.target.closest(".detail-button");
+
+    if (!button) {
+        return;
+    }
+
+    const member = findMemberById(button.dataset.memberId);
+    openMemberDetail(member);
 });
 
 if (addMemberButton) {
@@ -683,9 +1020,9 @@ memberTypeOptions.forEach((option) => {
             return;
         }
 
-        window.alert(
-            "Form Anggota Pemerintah Daerah akan ditambahkan berikutnya.",
-        );
+        if (regionalGovernmentMemberModal) {
+            regionalGovernmentMemberModal.hidden = false;
+        }
     });
 });
 
@@ -698,6 +1035,31 @@ memberTypeOptions.forEach((option) => {
         }
     },
 );
+
+[
+    regionalGovernmentMemberClose,
+    regionalGovernmentMemberCancel,
+].forEach((button) => {
+    if (button) {
+        button.addEventListener("click", () => {
+            closeModal(regionalGovernmentMemberModal);
+        });
+    }
+});
+
+[
+    memberTypeModal,
+    governmentMemberModal,
+    regionalGovernmentMemberModal,
+].forEach((modal) => {
+    if (modal) {
+        modal.addEventListener("click", (event) => {
+            if (event.target === modal) {
+                closeModal(modal);
+            }
+        });
+    }
+});
 
 [memberTypeModal, governmentMemberModal].forEach((modal) => {
     if (modal) {
@@ -917,33 +1279,105 @@ if (memberFormBackButton) {
 
 showMemberFormTab("profile");
 
-const detailTabs = Array.from(
-    document.querySelectorAll(".detail-tab"),
-);
-
-const detailPanels = Array.from(
-    document.querySelectorAll(".detail-panel"),
-);
-
 function showDetailTab(tabName) {
+    if (detailTabsContainer) {
+        detailTabsContainer.hidden = false;
+        detailTabsContainer.removeAttribute("hidden");
+    }
+
     detailTabs.forEach((tab) => {
         const isActive = tab.dataset.detailTab === tabName;
 
         tab.classList.toggle("is-active", isActive);
-        tab.setAttribute("aria-selected", String(isActive));
+        tab.setAttribute(
+            "aria-selected",
+            String(isActive),
+        );
     });
 
     detailPanels.forEach((panel) => {
-        panel.hidden = panel.dataset.detailPanel !== tabName;
+        const isActive =
+            panel.dataset.detailPanel === tabName;
+
+        panel.hidden = !isActive;
+
+        if (isActive) {
+            panel.removeAttribute("hidden");
+        } else {
+            panel.setAttribute("hidden", "");
+        }
     });
 
     if (detailProfile) {
         detailProfile.hidden = tabName !== "profile";
+    }
+
+    if (governmentDetailContent) {
+        governmentDetailContent.hidden = true;
+    }
+
+    if (regionalGovernmentDetailContent) {
+        regionalGovernmentDetailContent.hidden = true;
     }
 }
 
 detailTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
         showDetailTab(tab.dataset.detailTab);
+    });
+});
+
+governmentDetailTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+        const selectedTab = tab.dataset.governmentTab;
+
+        governmentDetailTabs.forEach((governmentTab) => {
+            const isActive =
+                governmentTab.dataset.governmentTab === selectedTab;
+
+            governmentTab.classList.toggle(
+                "is-active",
+                isActive,
+            );
+
+            governmentTab.setAttribute(
+                "aria-selected",
+                String(isActive),
+            );
+        });
+
+        governmentDetailPanels.forEach((panel) => {
+            panel.hidden =
+                panel.dataset.governmentPanel !== selectedTab;
+        });
+    });
+});
+
+regionalDetailTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+        const selectedTab =
+            tab.dataset.regionalTab;
+
+        regionalDetailTabs.forEach((regionalTab) => {
+            const isActive =
+                regionalTab.dataset.regionalTab ===
+                selectedTab;
+
+            regionalTab.classList.toggle(
+                "is-active",
+                isActive,
+            );
+
+            regionalTab.setAttribute(
+                "aria-selected",
+                String(isActive),
+            );
+        });
+
+        regionalDetailPanels.forEach((panel) => {
+            panel.hidden =
+                panel.dataset.regionalPanel !==
+                selectedTab;
+        });
     });
 });

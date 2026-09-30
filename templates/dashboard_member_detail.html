@@ -1,0 +1,49 @@
+<div
+    id="dashboard-member-detail-modal"
+    class="app-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="dashboard-member-detail-name"
+>
+    <div class="app-modal__content app-modal__content--wide dashboard-detail-modal">
+        <div class="app-modal__header">
+            <h2>Detail Anggota</h2>
+            <button
+                id="dashboard-member-detail-close"
+                class="modal-close"
+                type="button"
+                aria-label="Tutup detail"
+            >
+                ×
+            </button>
+        </div>
+
+        <div class="dashboard-detail-profile">
+            <img
+                id="dashboard-member-detail-photo"
+                src="{{ url_for(
+                    'static',
+                    filename='assets/icons/user.png'
+                ) }}"
+                alt=""
+            >
+            <h3 id="dashboard-member-detail-name">-</h3>
+            <p id="dashboard-member-detail-category">-</p>
+        </div>
+
+        <dl
+            id="dashboard-member-detail-fields"
+            class="dashboard-detail-fields"
+        ></dl>
+        <div
+            id="dashboard-member-detail-documents"
+            class="dashboard-detail-documents"
+            hidden
+        ></div>
+    </div>
+</div>
+
+<script id="dashboard-members-data" type="application/json">
+    {{ members | list | tojson }}
+</script>

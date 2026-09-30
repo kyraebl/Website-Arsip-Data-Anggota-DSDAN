@@ -164,9 +164,13 @@
                 {{ page_heading }}
             </h2>
 
-            
+            {% include "dashboard.html" %}
+
             <section
                 class="member-panel
+                    {% if page_type == 'dashboard' %}
+                        member-panel--dashboard
+                    {% endif %}
                     {% if page_type == 'members' %}
                         member-panel--data
                     {% endif %}"
@@ -187,7 +191,7 @@
                         <input
                             id="member-search"
                             type="search"
-                            placeholder="Cari berdasarkan nama, instansi, atau email..."
+                            placeholder="{% if page_type == 'dashboard' %}Cari berdasarkan nama, instansi, atau organisasi...{% else %}Cari berdasarkan nama, instansi, atau email...{% endif %}"
                         >
                     </label>
                 </div>
@@ -227,7 +231,54 @@
                     </div>
                 {% endif %}
 
-                {% if page_type == "members" %}
+                {% if page_type == "dashboard" %}
+                    <section
+                        id="dashboard-member-grid"
+                        class="dashboard-member-grid"
+                        aria-label="Daftar anggota"
+                    >
+                        {% for member in members %}
+                            <button
+                                class="dashboard-member-card"
+                                type="button"
+                                data-category="{{ member.category }}"
+                                data-member-id="{{ member.id }}"
+                                aria-label="Lihat detail {{ member.name }}"
+                            >
+                                <img
+                                    class="dashboard-member-card__photo"
+                                    src="{{ member.photo_url or url_for(
+                                        'static',
+                                        filename='assets/icons/user.png'
+                                    ) }}"
+                                    alt="Foto {{ member.name }}"
+                                    loading="lazy"
+                                >
+                                <span class="dashboard-member-card__name">
+                                    {{ member.name }}
+                                </span>
+                                <span class="dashboard-member-card__origin">
+                                    {% if member.category == "Non-Pemerintah" %}
+                                        {{ member.organization_name or member.institution or "Asal belum diisi" }}
+                                    {% else %}
+                                        {{ member.institution or "Asal belum diisi" }}
+                                    {% endif %}
+                                </span>
+                            </button>
+                        {% else %}
+                            <div class="dashboard-member-grid__empty">
+                                Belum ada anggota yang terdaftar.
+                            </div>
+                        {% endfor %}
+                    </section>
+                    <p
+                        id="dashboard-member-empty"
+                        class="dashboard-member-grid__empty"
+                        hidden
+                    >
+                        Anggota tidak ditemukan.
+                    </p>
+                {% elif page_type == "members" %}
                     <div
                         id="category-non-government"
                         class="member-category-panel"
@@ -458,6 +509,7 @@
                 </div>
                 {% endif %}
 
+                {% if page_type != "dashboard" %}
                 <div class="table-footer">
                     <span>
                         Menampilkan
@@ -489,7 +541,11 @@
                         </button>
                     </div>
                 </div>
+                {% endif %}
             </section>
+            {% if page_type == "dashboard" %}
+                {% include "dashboard_member_detail.html" %}
+            {% endif %}
         </main>
 
         <footer class="admin-footer">
@@ -711,14 +767,6 @@
                                 id="member-email"
                                 name="email"
                                 type="email"
-                            >
-                        </label>
-
-                        <label>
-                            Nomor Keanggotaan Asosiasi/Organisasi
-                            <input
-                                id="member-membership-number"
-                                name="membership_number"
                             >
                         </label>
 
@@ -1110,11 +1158,6 @@
                 </div>
 
                 <div>
-                    <dt>Nomor Keanggotaan</dt>
-                    <dd id="detail-membership-number">-</dd>
-                </div>
-
-                <div>
                     <dt>Periode Penugasan</dt>
                     <dd id="detail-assignment-period">-</dd>
                 </div>
@@ -1265,9 +1308,6 @@
         </div>
     </div>
 
-    <script id="members-data" type="application/json">
-        {{ members | list | tojson }}
-    </script>
 {% endif %}
 {% endblock %}
 

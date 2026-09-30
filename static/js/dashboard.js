@@ -13,9 +13,6 @@ const memberCategory = document.querySelector(
 const identityNumber = document.querySelector(
     "#member-identity-number",
 );
-const membershipNumber = document.querySelector(
-    "#member-membership-number",
-);
 const assignmentPeriod = document.querySelector(
     "#member-assignment-period",
 );
@@ -128,6 +125,12 @@ const memberRows = Array.from(
         "#member-table-body tr[data-category]",
     ),
 );
+const dashboardMemberCards = Array.from(
+    document.querySelectorAll(".dashboard-member-card"),
+);
+const dashboardMemberEmpty = document.querySelector(
+    "#dashboard-member-empty",
+);
 
 let selectedCategory = "Pemerintah";
 
@@ -147,6 +150,27 @@ function updateMemberRows() {
 
         row.hidden = !(matchesSearch && matchesCategory);
     });
+
+    let visibleDashboardCards = 0;
+
+    dashboardMemberCards.forEach((card) => {
+        const matchesSearch = card.textContent
+            .toLowerCase()
+            .includes(keyword);
+        const matchesCategory =
+            card.dataset.category === selectedCategory;
+
+        card.hidden = !(matchesSearch && matchesCategory);
+        if (!card.hidden) {
+            visibleDashboardCards += 1;
+        }
+    });
+
+    if (dashboardMemberEmpty) {
+        dashboardMemberEmpty.hidden =
+            dashboardMemberCards.length === 0
+            || visibleDashboardCards > 0;
+    }
 }
 
 if (sidebarToggle && adminLayout) {
@@ -311,11 +335,34 @@ const deleteMemberCancel = document.querySelector(
 const detailMemberModal = document.querySelector(
     "#detail-member-modal",
 );
+const dashboardMemberDetailModal = document.querySelector(
+    "#dashboard-member-detail-modal",
+);
 const detailMemberClose = document.querySelector(
     "#detail-member-close",
 );
+const dashboardMemberDetailClose = document.querySelector(
+    "#dashboard-member-detail-close",
+);
 const detailProfile = document.querySelector(".detail-profile");
-const membersDataElement = document.querySelector("#members-data");
+const membersDataElement = document.querySelector(
+    "#members-data, #dashboard-members-data",
+);
+const dashboardMemberDetailPhoto = document.querySelector(
+    "#dashboard-member-detail-photo",
+);
+const dashboardMemberDetailName = document.querySelector(
+    "#dashboard-member-detail-name",
+);
+const dashboardMemberDetailCategory = document.querySelector(
+    "#dashboard-member-detail-category",
+);
+const dashboardMemberDetailFields = document.querySelector(
+    "#dashboard-member-detail-fields",
+);
+const dashboardMemberDetailDocuments = document.querySelector(
+    "#dashboard-member-detail-documents",
+);
 
 const memberFormFields = {
     fullName: document.querySelector("#member-full-name"),
@@ -423,11 +470,6 @@ function openMemberForm(member) {
     setFieldValue(
         identityNumber,
         isEdit ? member.identity_number : "",
-    );
-
-    setFieldValue(
-        membershipNumber,
-        isEdit ? member.membership_number : "",
     );
 
     setFieldValue(
@@ -625,9 +667,6 @@ document.querySelectorAll(".detail-button").forEach((button) => {
         const detailIdentityNumber = document.querySelector(
             "#detail-identity-number",
         );
-        const detailMembershipNumber = document.querySelector(
-            "#detail-membership-number",
-        );
         const detailAppointmentLetter = document.querySelector(
             "#detail-appointment-letter",
         );
@@ -639,9 +678,6 @@ document.querySelectorAll(".detail-button").forEach((button) => {
 
         detailIdentityNumber.textContent =
             member.identity_number || "-";
-
-        detailMembershipNumber.textContent =
-            member.membership_number || "-";
 
         document.querySelector("#detail-assignment-period").textContent =
             member.assignment_period || "-";
@@ -701,6 +737,140 @@ document.querySelectorAll(".detail-button").forEach((button) => {
         showDetailTab("profile");
     });
 });
+
+function addDashboardDetailField(label, value) {
+    if (!dashboardMemberDetailFields || !value) {
+        return;
+    }
+
+    const term = document.createElement("dt");
+    term.textContent = label;
+
+    const description = document.createElement("dd");
+    description.textContent = value;
+
+    dashboardMemberDetailFields.append(term, description);
+}
+
+function addDashboardDetailDocument(label, url) {
+    if (!dashboardMemberDetailDocuments || !url) {
+        return;
+    }
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.textContent = label;
+    dashboardMemberDetailDocuments.append(link);
+}
+
+function openDashboardMemberDetail(member) {
+    if (
+        !member
+        || !dashboardMemberDetailModal
+        || !dashboardMemberDetailPhoto
+        || !dashboardMemberDetailName
+        || !dashboardMemberDetailCategory
+        || !dashboardMemberDetailFields
+        || !dashboardMemberDetailDocuments
+    ) {
+        return;
+    }
+
+    dashboardMemberDetailPhoto.src =
+        member.photo_url || "/static/assets/icons/user.png";
+    dashboardMemberDetailPhoto.alt = `Foto ${member.name || "anggota"}`;
+    dashboardMemberDetailName.textContent = member.name || "-";
+    dashboardMemberDetailCategory.textContent = member.category || "-";
+    dashboardMemberDetailFields.replaceChildren();
+    dashboardMemberDetailDocuments.replaceChildren();
+
+    if (member.category === "Pemerintah") {
+        addDashboardDetailField("Jabatan", member.position);
+        addDashboardDetailField(
+            "Kementerian / Lembaga",
+            member.institution,
+        );
+    } else if (member.category === "Pemerintah Daerah") {
+        addDashboardDetailField("Wilayah", member.institution);
+    } else {
+        addDashboardDetailField("NIK", member.identity_number);
+        addDashboardDetailField("Nomor HP / Telepon", member.phone);
+        addDashboardDetailField("Alamat E-mail", member.email);
+        addDashboardDetailField(
+            "Periode Penugasan",
+            member.assignment_period,
+        );
+        addDashboardDetailField(
+            "Asosiasi / Organisasi",
+            member.organization_name || member.institution,
+        );
+        addDashboardDetailField(
+            "Alamat Organisasi",
+            member.organization_address,
+        );
+        addDashboardDetailField(
+            "Nama Ketua Organisasi",
+            member.organization_chair_name,
+        );
+        addDashboardDetailField(
+            "Periode Jabatan Ketua",
+            member.organization_chair_period,
+        );
+        addDashboardDetailField(
+            "Jumlah Anggota Organisasi",
+            member.organization_member_count,
+        );
+        addDashboardDetailField(
+            "Telepon Organisasi",
+            member.organization_contact_phone,
+        );
+        addDashboardDetailField(
+            "E-mail Organisasi",
+            member.organization_email,
+        );
+        addDashboardDetailDocument(
+            "Surat Penunjukan",
+            member.appointment_letter_url,
+        );
+        addDashboardDetailDocument(
+            "Surat Pernyataan",
+            member.statement_letter_url,
+        );
+    }
+
+    dashboardMemberDetailDocuments.hidden =
+        dashboardMemberDetailDocuments.childElementCount === 0;
+    dashboardMemberDetailModal.hidden = false;
+}
+
+dashboardMemberCards.forEach((card) => {
+    card.addEventListener("click", () => {
+        const member = membersData.find(
+            (item) => String(item.id) === card.dataset.memberId,
+        );
+        openDashboardMemberDetail(member);
+    });
+});
+
+if (dashboardMemberDetailClose && dashboardMemberDetailModal) {
+    dashboardMemberDetailClose.addEventListener("click", () => {
+        dashboardMemberDetailModal.hidden = true;
+    });
+
+    dashboardMemberDetailModal.addEventListener("click", (event) => {
+        if (event.target === dashboardMemberDetailModal) {
+            dashboardMemberDetailModal.hidden = true;
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            dashboardMemberDetailModal.hidden = true;
+        }
+    });
+}
 
 if (addMemberButton) {
     addMemberButton.addEventListener("click", () => {

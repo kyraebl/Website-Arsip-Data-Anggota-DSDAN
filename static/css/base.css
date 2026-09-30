@@ -4,9 +4,9 @@
     --navy: #24396f;
     --navy-dark: #0b1f3a;
     --blue-text: #536987;
-    --blue-muted: #9caec7;
-    --page-background: #f2f5fa;
-    --border: #dfe5ee;
+    --blue-muted: #65758b;
+    --page-background: #f4f6fa;
+    --border: #e1e7ef;
     --yellow: #f5b21b;
     --white: #ffffff;
     --black: #111111;
@@ -25,6 +25,7 @@ body {
 body {
     color: var(--black);
     font-family: "Inter", Arial, Helvetica, sans-serif;
+    line-height: 1.45;
 }
 
 button,
@@ -34,6 +35,23 @@ input {
 
 button {
     cursor: pointer;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid rgba(36, 57, 111, 0.24);
+    outline-offset: 2px;
 }
 
 button:disabled {
