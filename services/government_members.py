@@ -50,10 +50,11 @@ def create_member(form, files, upload_dir):
                     'Pemerintah', %(full_name)s, %(institution)s,
                     %(position)s, %(photo_url)s
                 )
+                RETURNING id
                 """,
                 values,
             )
-            member_id = cursor.lastrowid
+            member_id = cursor.fetchone()["id"]
             cursor.execute(
                 """
                 INSERT INTO anggota_pemerintah (

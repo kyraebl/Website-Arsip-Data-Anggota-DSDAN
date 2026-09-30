@@ -1,5 +1,5 @@
 flask
 python-dotenv
-pymysql
-cryptography
+psycopg[binary]
 Pillow
+gunicorn

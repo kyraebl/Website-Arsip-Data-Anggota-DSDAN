@@ -52,11 +52,12 @@ def create_member(form, files, upload_dir):
                     %(institution)s,
                     %(photo_url)s
                 )
+                RETURNING id
                 """,
                 values,
             )
 
-            member_id = cursor.lastrowid
+            member_id = cursor.fetchone()["id"]
 
             cursor.execute(
                 """
