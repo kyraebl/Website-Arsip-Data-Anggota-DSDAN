@@ -1,4 +1,5 @@
 from db import get_connection
+from datetime import datetime, timedelta
 
 
 MEMBER_SELECT = """
@@ -40,12 +41,24 @@ MEMBER_SELECT = """
     ORDER BY a.nama_tampilan ASC
 """
 
+def _parse_datetime(value):
+    if isinstance(value, str):
+        try:
+            return datetime.fromisoformat(value) + timedelta(hours=7)
+        except ValueError:
+            return None
+    return value
 
 def get_members(archived=False):
     with get_connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(MEMBER_SELECT, (archived,))
-            return cursor.fetchall()
+            members = cursor.fetchall()
+
+    for member in members:
+        member["archived_at"] = _parse_datetime(member["archived_at"])
+
+    return members
 
 
 def get_member_statistics(members):
