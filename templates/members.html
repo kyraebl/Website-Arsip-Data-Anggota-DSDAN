@@ -536,7 +536,6 @@
                                             {% if category == "Pemerintah" %}
                                                 <th>Nama Menteri</th>
                                                 <th>Kementerian / Lembaga</th>
-                                                <th>Logo</th>
                                             {% elif category == "Pemerintah Daerah" %}
                                                 <th>Nama Gubernur</th>
                                                 <th>Wilayah</th>
@@ -561,19 +560,7 @@
                                                 <td>{{ loop.index }}</td>
                                                 <td>{{ member.name }}</td>
                                                 <td>{{ member.institution or "-" }}</td>
-                                                {% if category == "Pemerintah" or category == "Pemerintah Daerah" %}
-                                                    <td>
-                                                        {% if member.organization_logo_url or member.photo_url %}
-                                                            <img
-                                                                class="member-table__logo"
-                                                                src="{{ member.organization_logo_url or member.photo_url }}"
-                                                                alt="Logo {{ member.institution }}"
-                                                            >
-                                                        {% else %}
-                                                            <span>-</span>
-                                                        {% endif %}
-                                                    </td>
-                                                {% else %}
+                                                {% if category == "Non-Pemerintah" %}
                                                     <td>{{ member.email or "-" }}</td>
                                                     <td>{{ member.phone or "-" }}</td>
                                                 {% endif %}
@@ -601,7 +588,7 @@
                                             </tr>
                                         {% else %}
                                             <tr class="empty-row">
-                                                <td colspan="{{ 6 if category != 'Non-Pemerintah' else 7 }}">
+                                                <td colspan="{{ 5 if category != 'Non-Pemerintah' else 7 }}">
                                                     {{ empty_message }}
                                                 </td>
                                             </tr>
