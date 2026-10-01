@@ -1,9 +1,11 @@
 from routes.auth import index, login, logout
 from routes.members import (
+    arsipkan_anggota,
     edit_anggota,
     edit_pemerintah,
     edit_pemerintah_daerah,
-    hapus_anggota,
+    hapus_arsip_anggota,
+    kembalikan_anggota,
     tambah_anggota,
     tambah_pemerintah,
     tambah_pemerintah_daerah,
@@ -55,9 +57,21 @@ def register_routes(app):
         methods=["POST"],
     )
     app.add_url_rule(
-        "/anggota/<int:member_id>/hapus",
-        "hapus_anggota",
-        hapus_anggota,
+        "/anggota/<int:member_id>/arsip",
+        "arsipkan_anggota",
+        arsipkan_anggota,
+        methods=["POST"],
+    )
+    app.add_url_rule(
+        "/arsip-anggota/<int:member_id>/kembalikan",
+        "kembalikan_anggota",
+        kembalikan_anggota,
+        methods=["POST"],
+    )
+    app.add_url_rule(
+        "/arsip-anggota/<int:member_id>/hapus",
+        "hapus_arsip_anggota",
+        hapus_arsip_anggota,
         methods=["POST"],
     )
     app.add_url_rule(

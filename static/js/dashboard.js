@@ -131,6 +131,9 @@ const dashboardMemberCards = Array.from(
 const dashboardMemberEmpty = document.querySelector(
     "#dashboard-member-empty",
 );
+const archiveVisibleCount = document.querySelector(
+    "#archive-visible-count",
+);
 
 let selectedCategory = "Pemerintah";
 
@@ -171,6 +174,26 @@ function updateMemberRows() {
             dashboardMemberCards.length === 0
             || visibleDashboardCards > 0;
     }
+
+    if (archiveVisibleCount) {
+        const selectedTab = Array.from(categoryTabs).find(
+            (tab) => tab.getAttribute("aria-selected") === "true",
+        );
+        const selectedPanel = selectedTab
+            ? document.getElementById(
+                selectedTab.getAttribute("aria-controls"),
+            )
+            : null;
+        const visibleArchivedRows = selectedPanel
+            ? Array.from(
+                selectedPanel.querySelectorAll("tr[data-category]"),
+            ).filter((row) => !row.hidden)
+            : [];
+
+        archiveVisibleCount.textContent = String(
+            visibleArchivedRows.length,
+        );
+    }
 }
 
 if (sidebarToggle && adminLayout) {
@@ -203,8 +226,14 @@ if (searchInput) {
 categoryTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
         selectedCategory = tab.dataset.category;
+        const selectedPanelId = tab.getAttribute("aria-controls");
 
         categoryTabs.forEach((categoryTab) => {
+            const panelId = categoryTab.getAttribute("aria-controls");
+            const panel = panelId
+                ? document.getElementById(panelId)
+                : null;
+
             categoryTab.classList.remove(
                 "category-tab--active",
             );
@@ -213,6 +242,10 @@ categoryTabs.forEach((tab) => {
                 "aria-selected",
                 "false",
             );
+
+            if (panel) {
+                panel.hidden = panelId !== selectedPanelId;
+            }
         });
 
         tab.classList.add("category-tab--active");
@@ -249,6 +282,7 @@ memberCategoryTabs.forEach((tab) => {
 
         tab.classList.add("member-category-tab--active");
         tab.setAttribute("aria-selected", "true");
+        updateMemberRows();
     });
 });
 
@@ -327,10 +361,28 @@ const leaveMemberSave = document.querySelector(
 const memberModalTitle = document.querySelector("#member-modal-title");
 const addMemberButton = document.querySelector("#add-member-button");
 const memberModalClose = document.querySelector("#member-modal-close");
-const deleteMemberModal = document.querySelector("#delete-member-modal");
-const deleteMemberForm = document.querySelector("#delete-member-form");
-const deleteMemberCancel = document.querySelector(
-    "#delete-member-cancel",
+const archiveMemberModal = document.querySelector("#archive-member-modal");
+const archiveMemberForm = document.querySelector("#archive-member-form");
+const archiveMemberCancel = document.querySelector(
+    "#archive-member-cancel",
+);
+const restoreArchivedMemberModal = document.querySelector(
+    "#restore-archived-member-modal",
+);
+const restoreArchivedMemberForm = document.querySelector(
+    "#restore-archived-member-form",
+);
+const cancelRestoreArchivedMember = document.querySelector(
+    "#cancel-restore-archived-member",
+);
+const permanentlyDeleteArchivedMemberModal = document.querySelector(
+    "#permanently-delete-archived-member-modal",
+);
+const permanentlyDeleteArchivedMemberForm = document.querySelector(
+    "#permanently-delete-archived-member-form",
+);
+const cancelPermanentlyDeleteArchivedMember = document.querySelector(
+    "#cancel-permanently-delete-archived-member",
 );
 const detailMemberModal = document.querySelector(
     "#detail-member-modal",
@@ -350,6 +402,12 @@ const membersDataElement = document.querySelector(
 );
 const dashboardMemberDetailPhoto = document.querySelector(
     "#dashboard-member-detail-photo",
+);
+const dashboardMemberDetailOrganizationLogo = document.querySelector(
+    "#dashboard-member-detail-organization-logo",
+);
+const dashboardMemberDetailOrganizationImage = document.querySelector(
+    "#dashboard-member-detail-organization-image",
 );
 const dashboardMemberDetailName = document.querySelector(
     "#dashboard-member-detail-name",
@@ -781,6 +839,25 @@ function openDashboardMemberDetail(member) {
     dashboardMemberDetailPhoto.src =
         member.photo_url || "/static/assets/icons/user.png";
     dashboardMemberDetailPhoto.alt = `Foto ${member.name || "anggota"}`;
+    if (
+        dashboardMemberDetailOrganizationLogo
+        && dashboardMemberDetailOrganizationImage
+    ) {
+        const logoUrl = member.organization_logo_url;
+        dashboardMemberDetailOrganizationLogo.hidden = !logoUrl;
+        if (logoUrl) {
+            dashboardMemberDetailOrganizationImage.src = logoUrl;
+            const organizationName =
+                member.organization_name
+                || member.institution
+                || "instansi atau organisasi";
+            dashboardMemberDetailOrganizationImage.alt =
+                `Logo ${organizationName}`;
+        } else {
+            dashboardMemberDetailOrganizationImage.removeAttribute("src");
+            dashboardMemberDetailOrganizationImage.alt = "";
+        }
+    }
     dashboardMemberDetailName.textContent = member.name || "-";
     dashboardMemberDetailCategory.textContent = member.category || "-";
     dashboardMemberDetailFields.replaceChildren();
@@ -878,21 +955,62 @@ if (addMemberButton) {
     });
 }
 
-document.querySelectorAll(".icon-action--delete").forEach((button) => {
+document.querySelectorAll(".icon-action--archive").forEach((button) => {
     button.addEventListener("click", () => {
-        if (!deleteMemberModal || !deleteMemberForm) {
+        if (!archiveMemberModal || !archiveMemberForm) {
             return;
         }
 
-        deleteMemberForm.action =
-            `/anggota/${button.dataset.memberId}/hapus`;
-        deleteMemberModal.hidden = false;
+        archiveMemberForm.action =
+            `/anggota/${button.dataset.memberId}/arsip`;
+        archiveMemberModal.hidden = false;
     });
 });
 
-if (deleteMemberCancel) {
-    deleteMemberCancel.addEventListener("click", () => {
-        closeModal(deleteMemberModal);
+if (archiveMemberCancel) {
+    archiveMemberCancel.addEventListener("click", () => {
+        closeModal(archiveMemberModal);
+    });
+}
+
+document.querySelectorAll(".archived-member-restore").forEach((button) => {
+    button.addEventListener("click", () => {
+        if (!restoreArchivedMemberModal || !restoreArchivedMemberForm) {
+            return;
+        }
+
+        restoreArchivedMemberForm.action =
+            `/arsip-anggota/${button.dataset.memberId}/kembalikan`;
+        restoreArchivedMemberModal.hidden = false;
+    });
+});
+
+document.querySelectorAll(".archived-member-permanent-delete").forEach(
+    (button) => {
+        button.addEventListener("click", () => {
+            if (
+                !permanentlyDeleteArchivedMemberModal
+                || !permanentlyDeleteArchivedMemberForm
+            ) {
+                return;
+            }
+
+            permanentlyDeleteArchivedMemberForm.action =
+                `/arsip-anggota/${button.dataset.memberId}/hapus`;
+            permanentlyDeleteArchivedMemberModal.hidden = false;
+        });
+    },
+);
+
+if (cancelRestoreArchivedMember) {
+    cancelRestoreArchivedMember.addEventListener("click", () => {
+        closeModal(restoreArchivedMemberModal);
+    });
+}
+
+if (cancelPermanentlyDeleteArchivedMember) {
+    cancelPermanentlyDeleteArchivedMember.addEventListener("click", () => {
+        closeModal(permanentlyDeleteArchivedMemberModal);
     });
 }
 
@@ -902,7 +1020,14 @@ if (detailMemberClose) {
     });
 }
 
-[memberModal, deleteMemberModal, detailMemberModal, leaveMemberModal]
+[
+    memberModal,
+    archiveMemberModal,
+    restoreArchivedMemberModal,
+    permanentlyDeleteArchivedMemberModal,
+    detailMemberModal,
+    leaveMemberModal,
+]
     .forEach((modal) => {
         if (!modal) {
             return;

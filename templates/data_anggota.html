@@ -164,6 +164,17 @@
                 {{ page_heading }}
             </h2>
 
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div
+                        class="flash-message flash-message--{{ category }}"
+                        role="status"
+                    >
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endwith %}
+
             {% if page_type == "members" %}
                 <div class="member-category-toolbar">
                     <section
@@ -176,10 +187,10 @@
                             type="button"
                             role="tab"
                             aria-selected="true"
-                            aria-controls="category-non-government"
-                            data-member-category="Non-Pemerintah"
+                            aria-controls="category-government"
+                            data-member-category="Pemerintah"
                         >
-                            Anggota Non-Pemerintah
+                            Anggota Pemerintah
                         </button>
 
                         <button
@@ -187,10 +198,10 @@
                             type="button"
                             role="tab"
                             aria-selected="false"
-                            aria-controls="category-government"
-                            data-member-category="Pemerintah"
+                            aria-controls="category-non-government"
+                            data-member-category="Non-Pemerintah"
                         >
-                            Anggota Pemerintah
+                            Anggota Non-Pemerintah
                         </button>
 
                         <button
@@ -284,6 +295,7 @@
                         id="category-non-government"
                         class="member-category-panel"
                         role="tabpanel"
+                        hidden
                     >
                         <div class="table-wrapper">
                             <table class="member-table">
@@ -324,12 +336,12 @@
                                                     Edit
                                                 </button>
                                                 <button
-                                                    class="icon-action icon-action--delete"
+                                                    class="icon-action icon-action--archive"
                                                     type="button"
-                                                    aria-label="Hapus anggota"
+                                                    aria-label="Arsipkan anggota"
                                                     data-member-id="{{ member.id }}"
                                                 >
-                                                    Hapus
+                                                    Arsip
                                                 </button>
                                             </td>
                                         </tr>
@@ -350,7 +362,6 @@
                         id="category-government"
                         class="member-category-panel member-category-panel--cards"
                         role="tabpanel"
-                        hidden
                     >
                         <div class="table-wrapper">
                             <table class="member-table">
@@ -391,12 +402,12 @@
                                                 </button>
 
                                                 <button
-                                                    class="icon-action icon-action--delete"
+                                                    class="icon-action icon-action--archive"
                                                     type="button"
-                                                    aria-label="Hapus anggota pemerintah"
+                                                    aria-label="Arsipkan anggota pemerintah"
                                                     data-member-id="{{ member.id }}"
                                                 >
-                                                    Hapus
+                                                    Arsip
                                                 </button>
                                             </td>
                                         </tr>
@@ -458,12 +469,12 @@
                                                 </button>
 
                                                 <button
-                                                    class="icon-action icon-action--delete"
+                                                    class="icon-action icon-action--archive"
                                                     type="button"
-                                                    aria-label="Hapus anggota pemerintah daerah"
+                                                    aria-label="Arsipkan anggota pemerintah daerah"
                                                     data-member-id="{{ member.id }}"
                                                 >
-                                                    Hapus
+                                                    Arsip
                                                 </button>
                                             </td>
                                         </tr>
@@ -1214,27 +1225,27 @@
     </div>
 
     <div
-        id="delete-member-modal"
+        id="archive-member-modal"
         class="app-modal"
         hidden
         role="dialog"
         aria-modal="true"
-        aria-labelledby="delete-member-title"
+        aria-labelledby="archive-member-title"
     >
         <div class="app-modal__content app-modal__content--small">
-            <h2 id="delete-member-title">
-                Hapus Data Anggota?
+            <h2 id="archive-member-title">
+                Arsipkan Data Anggota?
             </h2>
 
             <p>
-                Data anggota akan dihapus permanen dan tidak dapat
-                dikembalikan.
+                Anda yakin ingin arsip data ini? Data anggota akan
+                dipindahkan ke halaman Arsip Anggota.
             </p>
 
-            <form id="delete-member-form" method="post">
+            <form id="archive-member-form" method="post">
                 <div class="app-modal__actions">
                     <button
-                        id="delete-member-cancel"
+                        id="archive-member-cancel"
                         class="modal-button modal-button--secondary"
                         type="button"
                     >
@@ -1242,10 +1253,10 @@
                     </button>
 
                     <button
-                        class="modal-button modal-button--danger"
+                        class="modal-button modal-button--primary"
                         type="submit"
                     >
-                        Ya, Hapus
+                        Ya, Arsipkan
                     </button>
                 </div>
             </form>

@@ -20,14 +20,28 @@
         </div>
 
         <div class="dashboard-detail-profile">
-            <img
-                id="dashboard-member-detail-photo"
-                src="{{ url_for(
-                    'static',
-                    filename='assets/icons/user.png'
-                ) }}"
-                alt=""
-            >
+            <div class="dashboard-detail-profile__images">
+                <img
+                    id="dashboard-member-detail-photo"
+                    class="dashboard-detail-profile__photo"
+                    src="{{ url_for(
+                        'static',
+                        filename='assets/icons/user.png'
+                    ) }}"
+                    alt=""
+                >
+                <div
+                    id="dashboard-member-detail-organization-logo"
+                    class="dashboard-detail-profile__organization"
+                    hidden
+                >
+                    <img
+                        id="dashboard-member-detail-organization-image"
+                        src=""
+                        alt=""
+                    >
+                </div>
+            </div>
             <h3 id="dashboard-member-detail-name">-</h3>
             <p id="dashboard-member-detail-category">-</p>
         </div>

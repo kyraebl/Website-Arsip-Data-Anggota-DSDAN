@@ -232,10 +232,10 @@ const leaveMemberSave = document.querySelector(
 const memberModalTitle = document.querySelector("#member-modal-title");
 const addMemberButton = document.querySelector("#add-member-button");
 const memberModalClose = document.querySelector("#member-modal-close");
-const deleteMemberModal = document.querySelector("#delete-member-modal");
-const deleteMemberForm = document.querySelector("#delete-member-form");
-const deleteMemberCancel = document.querySelector(
-    "#delete-member-cancel",
+const archiveMemberModal = document.querySelector("#archive-member-modal");
+const archiveMemberForm = document.querySelector("#archive-member-form");
+const archiveMemberCancel = document.querySelector(
+    "#archive-member-cancel",
 );
 const detailMemberModal = document.querySelector(
     "#detail-member-modal",
@@ -1071,21 +1071,21 @@ memberTypeOptions.forEach((option) => {
     }
 });
 
-document.querySelectorAll(".icon-action--delete").forEach((button) => {
+document.querySelectorAll(".icon-action--archive").forEach((button) => {
     button.addEventListener("click", () => {
-        if (!deleteMemberModal || !deleteMemberForm) {
+        if (!archiveMemberModal || !archiveMemberForm) {
             return;
         }
 
-        deleteMemberForm.action =
-            `/anggota/${button.dataset.memberId}/hapus`;
-        deleteMemberModal.hidden = false;
+        archiveMemberForm.action =
+            `/anggota/${button.dataset.memberId}/arsip`;
+        archiveMemberModal.hidden = false;
     });
 });
 
-if (deleteMemberCancel) {
-    deleteMemberCancel.addEventListener("click", () => {
-        closeModal(deleteMemberModal);
+if (archiveMemberCancel) {
+    archiveMemberCancel.addEventListener("click", () => {
+        closeModal(archiveMemberModal);
     });
 }
 
@@ -1095,7 +1095,7 @@ if (detailMemberClose) {
     });
 }
 
-[memberModal, deleteMemberModal, detailMemberModal, leaveMemberModal]
+[memberModal, archiveMemberModal, detailMemberModal, leaveMemberModal]
     .forEach((modal) => {
         if (!modal) {
             return;

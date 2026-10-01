@@ -164,6 +164,17 @@
                 {{ page_heading }}
             </h2>
 
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div
+                        class="flash-message flash-message--{{ category }}"
+                        role="status"
+                    >
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endwith %}
+
             {% include "dashboard.html" %}
 
             <section
@@ -195,6 +206,47 @@
                         >
                     </label>
                 </div>
+
+                {% if page_type == "archive" %}
+                    <div
+                        class="category-tabs archive-category-tabs"
+                        role="tablist"
+                        aria-label="Kategori anggota arsip"
+                    >
+                        <button
+                            class="category-tab category-tab--active"
+                            type="button"
+                            role="tab"
+                            aria-selected="true"
+                            aria-controls="archive-category-government"
+                            data-category="Pemerintah"
+                        >
+                            Pemerintah
+                        </button>
+
+                        <button
+                            class="category-tab"
+                            type="button"
+                            role="tab"
+                            aria-selected="false"
+                            aria-controls="archive-category-non-government"
+                            data-category="Non-Pemerintah"
+                        >
+                            Non-Pemerintah
+                        </button>
+
+                        <button
+                            class="category-tab"
+                            type="button"
+                            role="tab"
+                            aria-selected="false"
+                            aria-controls="archive-category-regional-government"
+                            data-category="Pemerintah Daerah"
+                        >
+                            Pemerintah Daerah
+                        </button>
+                    </div>
+                {% endif %}
 
                 {% if page_type == "dashboard" %}
                     <div
@@ -323,12 +375,12 @@
                                                     Edit
                                                 </button>
                                                 <button
-                                                    class="icon-action icon-action--delete"
+                                                    class="icon-action icon-action--archive"
                                                     type="button"
-                                                    aria-label="Hapus anggota"
+                                                    aria-label="Arsipkan anggota"
                                                     data-member-id="{{ member.id }}"
                                                 >
-                                                    Hapus
+                                                    Arsip
                                                 </button>
                                             </td>
                                         </tr>
@@ -464,6 +516,101 @@
                             </table>
                         </div>
                     </div>
+                {% elif page_type == "archive" %}
+                    {% for category, panel_id, empty_message in [
+                        ("Pemerintah", "archive-category-government", "Belum ada anggota pemerintah yang diarsipkan."),
+                        ("Non-Pemerintah", "archive-category-non-government", "Belum ada anggota non-pemerintah yang diarsipkan."),
+                        ("Pemerintah Daerah", "archive-category-regional-government", "Belum ada anggota pemerintah daerah yang diarsipkan.")
+                    ] %}
+                        <div
+                            id="{{ panel_id }}"
+                            class="member-category-panel"
+                            role="tabpanel"
+                            {% if not loop.first %}hidden{% endif %}
+                        >
+                            <div class="table-wrapper">
+                                <table class="member-table">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            {% if category == "Pemerintah" %}
+                                                <th>Nama Menteri</th>
+                                                <th>Kementerian / Lembaga</th>
+                                                <th>Logo</th>
+                                            {% elif category == "Pemerintah Daerah" %}
+                                                <th>Nama Gubernur</th>
+                                                <th>Wilayah</th>
+                                                <th>Logo</th>
+                                            {% else %}
+                                                <th>Nama Lengkap</th>
+                                                <th>Instansi / Lembaga</th>
+                                                <th>Email</th>
+                                                <th>Nomor Telepon</th>
+                                            {% endif %}
+                                            <th>Tanggal Diarsipkan</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% set category_members = members
+                                            | selectattr("category", "equalto", category)
+                                            | list %}
+                                        {% for member in category_members %}
+                                            <tr data-category="{{ member.category }}">
+                                                <td>{{ loop.index }}</td>
+                                                <td>{{ member.name }}</td>
+                                                <td>{{ member.institution or "-" }}</td>
+                                                {% if category == "Pemerintah" or category == "Pemerintah Daerah" %}
+                                                    <td>
+                                                        {% if member.organization_logo_url or member.photo_url %}
+                                                            <img
+                                                                class="member-table__logo"
+                                                                src="{{ member.organization_logo_url or member.photo_url }}"
+                                                                alt="Logo {{ member.institution }}"
+                                                            >
+                                                        {% else %}
+                                                            <span>-</span>
+                                                        {% endif %}
+                                                    </td>
+                                                {% else %}
+                                                    <td>{{ member.email or "-" }}</td>
+                                                    <td>{{ member.phone or "-" }}</td>
+                                                {% endif %}
+                                                <td>
+                                                    {{ member.archived_at.strftime("%d-%m-%Y %H:%M") if member.archived_at else "-" }}
+                                                </td>
+                                                <td class="table-actions">
+                                                    <button
+                                                        class="icon-action icon-action--restore archived-member-restore"
+                                                        type="button"
+                                                        aria-label="Kembalikan {{ member.name }} ke anggota aktif"
+                                                        data-member-id="{{ member.id }}"
+                                                    >
+                                                        Kembalikan
+                                                    </button>
+                                                    <button
+                                                        class="icon-action icon-action--permanent-delete archived-member-permanent-delete"
+                                                        type="button"
+                                                        aria-label="Hapus permanen {{ member.name }}"
+                                                        data-member-id="{{ member.id }}"
+                                                    >
+                                                        Hapus Permanen
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        {% else %}
+                                            <tr class="empty-row">
+                                                <td colspan="{{ 6 if category != 'Non-Pemerintah' else 7 }}">
+                                                    {{ empty_message }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {% endfor %}
                 {% else %}
                 <div class="table-wrapper">
                     <table class="member-table">
@@ -513,7 +660,18 @@
                 <div class="table-footer">
                     <span>
                         Menampilkan
-                        <strong>{{ members|length }}</strong>
+                        <strong>
+                            {% if page_type == "archive" %}
+                                <span id="archive-visible-count">
+                                    {{ members
+                                        | selectattr("category", "equalto", "Pemerintah")
+                                        | list
+                                        | length }}
+                                </span>
+                            {% else %}
+                                {{ members|length }}
+                            {% endif %}
+                        </strong>
                         data
                     </span>
 
@@ -545,6 +703,88 @@
             </section>
             {% if page_type == "dashboard" %}
                 {% include "dashboard_member_detail.html" %}
+            {% endif %}
+
+            {% if page_type == "archive" %}
+                <div
+                    id="restore-archived-member-modal"
+                    class="app-modal"
+                    hidden
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="restore-archived-member-title"
+                >
+                    <div class="app-modal__content app-modal__content--small">
+                        <h2 id="restore-archived-member-title">
+                            Kembalikan Data Anggota?
+                        </h2>
+
+                        <p>
+                            Data anggota akan dikembalikan ke daftar anggota aktif.
+                        </p>
+
+                        <form id="restore-archived-member-form" method="post">
+                            <div class="app-modal__actions">
+                                <button
+                                    id="cancel-restore-archived-member"
+                                    class="modal-button modal-button--secondary"
+                                    type="button"
+                                >
+                                    Batal
+                                </button>
+
+                                <button
+                                    class="modal-button modal-button--primary"
+                                    type="submit"
+                                >
+                                    Ya, Kembalikan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div
+                    id="permanently-delete-archived-member-modal"
+                    class="app-modal"
+                    hidden
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="permanently-delete-archived-member-title"
+                >
+                    <div class="app-modal__content app-modal__content--small">
+                        <h2 id="permanently-delete-archived-member-title">
+                            Hapus Permanen Data Anggota?
+                        </h2>
+
+                        <p>
+                            Data dan riwayat anggota akan dihapus permanen
+                            dan tidak dapat dikembalikan.
+                        </p>
+
+                        <form
+                            id="permanently-delete-archived-member-form"
+                            method="post"
+                        >
+                            <div class="app-modal__actions">
+                                <button
+                                    id="cancel-permanently-delete-archived-member"
+                                    class="modal-button modal-button--secondary"
+                                    type="button"
+                                >
+                                    Batal
+                                </button>
+
+                                <button
+                                    class="modal-button modal-button--danger"
+                                    type="submit"
+                                >
+                                    Ya, Hapus Permanen
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             {% endif %}
         </main>
 
@@ -987,27 +1227,27 @@
     </div>
 
     <div
-        id="delete-member-modal"
+        id="archive-member-modal"
         class="app-modal"
         hidden
         role="dialog"
         aria-modal="true"
-        aria-labelledby="delete-member-title"
+        aria-labelledby="archive-member-title"
     >
         <div class="app-modal__content app-modal__content--small">
-            <h2 id="delete-member-title">
-                Hapus Data Anggota?
+            <h2 id="archive-member-title">
+                Arsipkan Data Anggota?
             </h2>
 
             <p>
-                Data anggota akan dihapus permanen dan tidak dapat
-                dikembalikan.
+                Anda yakin ingin arsip data ini? Data anggota akan
+                dipindahkan ke halaman Arsip Anggota.
             </p>
 
-            <form id="delete-member-form" method="post">
+            <form id="archive-member-form" method="post">
                 <div class="app-modal__actions">
                     <button
-                        id="delete-member-cancel"
+                        id="archive-member-cancel"
                         class="modal-button modal-button--secondary"
                         type="button"
                     >
@@ -1015,10 +1255,10 @@
                     </button>
 
                     <button
-                        class="modal-button modal-button--danger"
+                        class="modal-button modal-button--primary"
                         type="submit"
                     >
-                        Ya, Hapus
+                        Ya, Arsipkan
                     </button>
                 </div>
             </form>
