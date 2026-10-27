@@ -59,6 +59,21 @@ class _Connection:
     def cursor(self):
         return _Cursor(self._connection.cursor())
 
+def ensure_schema():
+    connection = sqlite3.connect(DATABASE_PATH)
+    try:
+        for table in ("anggota_pemerintah", "anggota_pemerintah_daerah"):
+            columns = {
+                row[1]
+                for row in connection.execute(f"PRAGMA table_info({table})")
+            }
+            if columns and "alamat_kantor" not in columns:
+                connection.execute(
+                    f"ALTER TABLE {table} ADD COLUMN alamat_kantor TEXT"
+                )
+        connection.commit()
+    finally:
+        connection.close()
 
 @contextmanager
 def get_connection():

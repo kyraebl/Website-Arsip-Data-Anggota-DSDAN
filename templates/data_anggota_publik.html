@@ -188,8 +188,10 @@
         if (member.category === "Pemerintah") {
             addField("Jabatan", member.position);
             addField("Kementerian / Lembaga", member.institution);
+            addField("Alamat Kantor", member.office_address);
         } else if (member.category === "Pemerintah Daerah") {
             addField("Wilayah", member.institution);
+            addField("Alamat Kantor", member.office_address);
         } else {
             addField("Periode Penugasan", member.assignment_period);
             addField("Asosiasi / Organisasi", member.organization_name || member.institution);

@@ -6,7 +6,7 @@ load_dotenv()
 from config import Config
 from routes import register_routes
 from services.uploads import init_upload_paths
-
+from db import ensure_schema
 
 def create_app():
     app = Flask(__name__)
@@ -19,6 +19,9 @@ def create_app():
 
 
 app = create_app()
+app.config.from_object(Config)
+ensure_schema()
+init_upload_paths(app)
 
 
 if __name__ == "__main__":

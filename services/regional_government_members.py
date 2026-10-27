@@ -7,6 +7,7 @@ def get_form_values(form):
     return {
         "institution": text_value(form, "institution"),
         "full_name": text_value(form, "full_name"),
+        "office_address": text_value(form, "office_address"),
     }
 
 
@@ -65,14 +66,16 @@ def create_member(form, files, upload_dir):
                     logo_daerah,
                     nama_daerah,
                     foto_gubernur,
-                    nama_gubernur
+                    nama_gubernur,
+                    alamat_kantor
                 )
                 VALUES (
                     %(member_id)s,
                     %(organization_logo_url)s,
                     %(institution)s,
                     %(photo_url)s,
-                    %(full_name)s
+                    %(full_name)s,
+                    %(office_address)s
                 )
                 """,
                 {
@@ -148,7 +151,8 @@ def update_member(member_id, form, files, upload_dir):
                 SET logo_daerah = %s,
                     nama_daerah = %s,
                     foto_gubernur = %s,
-                    nama_gubernur = %s
+                    nama_gubernur = %s,
+                    alamat_kantor = %s
                 WHERE anggota_id = %s
                 """,
                 (
@@ -156,6 +160,7 @@ def update_member(member_id, form, files, upload_dir):
                     values["institution"],
                     values["photo_url"],
                     values["full_name"],
+                    values["office_address"],
                     member_id,
                 ),
             )

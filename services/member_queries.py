@@ -28,6 +28,7 @@ MEMBER_SELECT = """
         ad.nama_gubernur AS governor_name,
         ad.foto_gubernur AS governor_photo_url,
         ad.logo_daerah AS regional_logo_url,
+        COALESCE(ap.alamat_kantor, ad.alamat_kantor) AS office_address,
         a.status_arsip AS is_archived,
         a.tanggal_arsip AS archived_at
     FROM anggota a
@@ -62,6 +63,7 @@ PUBLIC_MEMBER_SELECT = """
         ad.nama_gubernur AS governor_name,
         ad.foto_gubernur AS governor_photo_url,
         ad.logo_daerah AS regional_logo_url,
+        COALESCE(ap.alamat_kantor, ad.alamat_kantor) AS office_address,
         a.status_arsip AS is_archived,
         a.tanggal_arsip AS archived_at
     FROM anggota a

@@ -827,8 +827,16 @@ function openDashboardMemberDetail(member) {
             "Kementerian / Lembaga",
             member.institution,
         );
+        addDashboardDetailField(
+            "Alamat Kantor",
+            member.office_address,
+        );
     } else if (member.category === "Pemerintah Daerah") {
         addDashboardDetailField("Wilayah", member.institution);
+        addDashboardDetailField(
+            "Alamat Kantor",
+            member.office_address,
+        );
     } else {
         addDashboardDetailField("NIK", member.identity_number);
         addDashboardDetailField("Nomor HP / Telepon", member.phone);

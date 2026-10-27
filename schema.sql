@@ -37,7 +37,8 @@ CREATE TABLE IF NOT EXISTS anggota_pemerintah (
     logo_kementerian TEXT,
     nama_kementerian TEXT NOT NULL,
     foto_menteri TEXT,
-    nama_menteri TEXT NOT NULL
+    nama_menteri TEXT NOT NULL,
+    alamat_kantor TEXT
 );
 
 CREATE TABLE IF NOT EXISTS anggota_pemerintah_daerah (
@@ -45,7 +46,8 @@ CREATE TABLE IF NOT EXISTS anggota_pemerintah_daerah (
     logo_daerah TEXT,
     nama_daerah TEXT NOT NULL,
     foto_gubernur TEXT,
-    nama_gubernur TEXT NOT NULL
+    nama_gubernur TEXT NOT NULL,
+    alamat_kantor TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_anggota_jenis ON anggota(jenis_anggota);

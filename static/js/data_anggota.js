@@ -625,6 +625,15 @@ function openGovernmentMemberForm(member) {
             : "";
     }
 
+    const officeAddressInput =
+        governmentMemberForm.elements.office_address;
+
+    if (officeAddressInput) {
+        officeAddressInput.value = isEdit
+            ? member.office_address || ""
+            : "";
+    }
+
     const photoInput =
         governmentMemberForm.elements.photo_file;
 
@@ -677,6 +686,15 @@ function openRegionalGovernmentMemberForm(member) {
     if (institutionInput) {
         institutionInput.value = isEdit
             ? member.institution || ""
+            : "";
+    }
+
+        const officeAddressInput =
+        regionalGovernmentMemberForm.elements.office_address;
+
+    if (officeAddressInput) {
+        officeAddressInput.value = isEdit
+            ? member.office_address || ""
             : "";
     }
 
@@ -796,6 +814,15 @@ function openMemberDetail(member) {
                 member.institution || "-";
         }
 
+        const governmentOfficeAddress = document.querySelector(
+            "#government-detail-office-address",
+        );
+
+        if (governmentOfficeAddress) {
+            governmentOfficeAddress.textContent =
+                member.office_address || "-";
+        }
+
         governmentDetailTabs.forEach((tab) => {
             const isActive =
                 tab.dataset.governmentTab === "minister";
@@ -862,6 +889,15 @@ function openMemberDetail(member) {
                 member.institution || "-";
         }
 
+        const regionalOfficeAddress = document.querySelector(
+            "#regional-detail-office-address",
+        );
+
+        if (regionalOfficeAddress) {
+            regionalOfficeAddress.textContent =
+                member.office_address || "-";
+        }
+        
         detailMemberModal.hidden = false;
         return;
     }
