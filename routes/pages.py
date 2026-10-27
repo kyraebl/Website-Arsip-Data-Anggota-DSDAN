@@ -1,7 +1,7 @@
 from flask import render_template
 
 from routes.auth import login_required
-from services.member_queries import get_member_statistics, get_members
+from services.member_queries import get_member_statistics, get_members, get_public_members
 
 
 @login_required
@@ -51,4 +51,20 @@ def arsip_anggota():
             "Arsip Anggota Dewan Sumber Daya Air Nasional"
         ),
         members=archived_members,
+    )
+
+def direktori_publik():
+    public_members = get_public_members()
+    statistics = get_member_statistics(public_members)
+
+    return render_template(
+        "data_anggota_publik.html", 
+        page_type="public",
+        active_page="direktori_publik",
+        page_title="Database Anggota",
+        page_heading=(
+            "Database Anggota Dewan Sumber Daya Air Nasional"
+        ),
+        members=public_members,
+        **statistics,
     )

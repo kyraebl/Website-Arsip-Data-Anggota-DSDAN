@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block body_class %}admin-page{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<style>
+    .public-topbar__brand { display: flex; align-items: center; gap: 12px; }
+    .public-topbar__brand img { width: 42px; height: 42px; object-fit: contain; }
+    .public-main { min-height: 100vh; display: flex; flex-direction: column; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="public-main">
+    <header class="topbar">
+        <div class="public-topbar__brand">
+            <img src="{{ url_for('static', filename='assets/brand/logo-dsdan.png') }}" alt="Logo DSDAN">
+            <h1 class="topbar__title">Dewan Sumber Daya Air Nasional</h1>
+        </div>
+    </header>
+
+    <main class="dashboard-content">
+        <h2 class="dashboard-heading">{{ page_heading }}</h2>
+
+        <section class="summary-grid" aria-label="Ringkasan anggota">
+            <article class="summary-card">
+                <p>Total Anggota Terdaftar</p>
+                <strong>{{ total_members }}</strong>
+            </article>
+            <article class="summary-card">
+                <p>Anggota Pemerintah</p>
+                <strong>{{ government_members }}</strong>
+            </article>
+            <article class="summary-card">
+                <p>Anggota Non-Pemerintah</p>
+                <strong>{{ non_government_members }}</strong>
+            </article>
+            <article class="summary-card">
+                <p>Anggota Pemerintah Daerah</p>
+                <strong>{{ regional_government_members }}</strong>
+            </article>
+        </section>
+
+        <section class="member-panel member-panel--dashboard">
+            <div class="member-toolbar">
+                <label class="search-box" for="public-search">
+                    <img src="{{ url_for('static', filename='assets/icons/search.png') }}" alt="">
+                    <input id="public-search" type="search"
+                           placeholder="Cari berdasarkan nama, instansi, atau organisasi...">
+                </label>
+            </div>
+
+            <div class="category-tabs" role="tablist" aria-label="Kategori anggota">
+                <button class="category-tab category-tab--active" type="button"
+                        data-category="Pemerintah" aria-selected="true">Pemerintah</button>
+                <button class="category-tab" type="button"
+                        data-category="Non-Pemerintah" aria-selected="false">Non-Pemerintah</button>
+                <button class="category-tab" type="button"
+                        data-category="Pemerintah Daerah" aria-selected="false">Pemerintah Daerah</button>
+            </div>
+
+            <section id="public-grid" class="dashboard-member-grid" aria-label="Daftar anggota">
+                {% for member in members %}
+                    <button class="dashboard-member-card" type="button"
+                            data-category="{{ member.category }}"
+                            data-member-id="{{ member.id }}"
+                            aria-label="Lihat detail {{ member.name }}">
+                        <img class="dashboard-member-card__photo"
+                             src="{{ member.photo_url or url_for('static', filename='assets/icons/user.png') }}"
+                             alt="Foto {{ member.name }}" loading="lazy">
+                        <span class="dashboard-member-card__name">{{ member.name }}</span>
+                        <span class="dashboard-member-card__origin">
+                            {% if member.category == "Non-Pemerintah" %}
+                                {{ member.organization_name or member.institution or "Asal belum diisi" }}
+                            {% else %}
+                                {{ member.institution or "Asal belum diisi" }}
+                            {% endif %}
+                        </span>
+                    </button>
+                {% else %}
+                    <div class="dashboard-member-grid__empty">Belum ada anggota yang terdaftar.</div>
+                {% endfor %}
+            </section>
+            <p id="public-empty" class="dashboard-member-grid__empty" hidden>Anggota tidak ditemukan.</p>
+        </section>
+    </main>
+</div>
+
+<div id="public-modal" class="app-modal" hidden role="dialog" aria-modal="true" aria-labelledby="public-name">
+    <div class="app-modal__content app-modal__content--wide dashboard-detail-modal">
+        <div class="app-modal__header">
+            <h2>Detail Anggota</h2>
+            <button id="public-close" class="modal-close" type="button" aria-label="Tutup detail">×</button>
+        </div>
+
+        <div class="dashboard-detail-profile">
+            <div class="dashboard-detail-profile__images">
+                <img id="public-photo" class="dashboard-detail-profile__photo"
+                     src="{{ url_for('static', filename='assets/icons/user.png') }}" alt="">
+                <div id="public-org-logo" class="dashboard-detail-profile__organization" hidden>
+                    <img id="public-org-image" src="" alt="">
+                </div>
+            </div>
+            <h3 id="public-name">-</h3>
+            <p id="public-category">-</p>
+        </div>
+
+        <dl id="public-fields" class="dashboard-detail-fields"></dl>
+    </div>
+</div>
+
+<script id="public-data" type="application/json">{{ members | list | tojson }}</script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(() => {
+    const members = JSON.parse(document.getElementById("public-data").textContent);
+    const cards = [...document.querySelectorAll(".dashboard-member-card")];
+    const tabs = [...document.querySelectorAll(".category-tab")];
+    const search = document.getElementById("public-search");
+    const emptyMsg = document.getElementById("public-empty");
+    const modal = document.getElementById("public-modal");
+    const fields = document.getElementById("public-fields");
+    const fallbackPhoto = "{{ url_for('static', filename='assets/icons/user.png') }}";
+    let activeCategory = "Pemerintah";
+
+    function applyFilter() {
+        const keyword = search.value.trim().toLowerCase();
+        let visible = 0;
+
+        cards.forEach((card) => {
+            const member = members.find((m) => String(m.id) === card.dataset.memberId);
+            const haystack = [
+                member.name, member.institution, member.organization_name,
+            ].join(" ").toLowerCase();
+            const show = card.dataset.category === activeCategory
+                && haystack.includes(keyword);
+            card.hidden = !show;
+            if (show) visible += 1;
+        });
+
+        emptyMsg.hidden = visible !== 0 || cards.length === 0;
+    }
+
+    tabs.forEach((tab) => tab.addEventListener("click", () => {
+        activeCategory = tab.dataset.category;
+        tabs.forEach((t) => {
+            const on = t === tab;
+            t.classList.toggle("category-tab--active", on);
+            t.setAttribute("aria-selected", String(on));
+        });
+        applyFilter();
+    }));
+    search.addEventListener("input", applyFilter);
+    applyFilter();
+
+    function addField(label, value) {
+        if (value === null || value === undefined || value === "") return;
+        const dt = document.createElement("dt");
+        const dd = document.createElement("dd");
+        dt.textContent = label;
+        dd.textContent = value;
+        fields.append(dt, dd);
+    }
+
+    function openDetail(member) {
+        if (!member) return;
+
+        document.getElementById("public-photo").src = member.photo_url || fallbackPhoto;
+        document.getElementById("public-photo").alt = "Foto " + (member.name || "anggota");
+        document.getElementById("public-name").textContent = member.name || "-";
+        document.getElementById("public-category").textContent = member.category || "-";
+
+        const logoBox = document.getElementById("public-org-logo");
+        const logoImg = document.getElementById("public-org-image");
+        logoBox.hidden = !member.organization_logo_url;
+        if (member.organization_logo_url) {
+            logoImg.src = member.organization_logo_url;
+            logoImg.alt = "Logo " + (member.organization_name || member.institution || "organisasi");
+        }
+
+        fields.replaceChildren();
+
+        if (member.category === "Pemerintah") {
+            addField("Jabatan", member.position);
+            addField("Kementerian / Lembaga", member.institution);
+        } else if (member.category === "Pemerintah Daerah") {
+            addField("Wilayah", member.institution);
+        } else {
+            addField("Periode Penugasan", member.assignment_period);
+            addField("Asosiasi / Organisasi", member.organization_name || member.institution);
+            addField("Nama Ketua Organisasi", member.organization_chair_name);
+            addField("Periode Jabatan Ketua", member.organization_chair_period);
+            addField("Jumlah Anggota Organisasi", member.organization_member_count);
+            addField("Alamat Organisasi", member.organization_address);
+            addField("Telepon Organisasi", member.organization_contact_phone);
+            addField("E-mail Organisasi", member.organization_email);
+        }
+
+        modal.hidden = false;
+    }
+
+    cards.forEach((card) => card.addEventListener("click", () => {
+        openDetail(members.find((m) => String(m.id) === card.dataset.memberId));
+    }));
+
+    const close = () => { modal.hidden = true; };
+    document.getElementById("public-close").addEventListener("click", close);
+    modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+})();
+</script>
+{% endblock %}

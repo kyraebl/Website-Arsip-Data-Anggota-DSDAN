@@ -29,9 +29,7 @@ CREATE TABLE IF NOT EXISTS anggota_non_pemerintah (
     email TEXT,
     alamat TEXT,
     periode_penugasan TEXT,
-    jumlah_anggota INTEGER,
-    surat_penunjukan_url TEXT,
-    surat_pernyataan_url TEXT
+    jumlah_anggota INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS anggota_pemerintah (

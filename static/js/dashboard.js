@@ -34,12 +34,6 @@ const regionalRepresentatives = document.querySelector(
 const photoUrl = document.querySelector(
     "#member-photo-url",
 );
-const appointmentLetterUrl = document.querySelector(
-    "#appointment-letter-url",
-);
-const statementLetterUrl = document.querySelector(
-    "#statement-letter-url",
-);
 const removePhotoWrapper = document.querySelector(
     "#remove-photo-wrapper",
 );
@@ -418,9 +412,6 @@ const dashboardMemberDetailCategory = document.querySelector(
 const dashboardMemberDetailFields = document.querySelector(
     "#dashboard-member-detail-fields",
 );
-const dashboardMemberDetailDocuments = document.querySelector(
-    "#dashboard-member-detail-documents",
-);
 
 const memberFormFields = {
     fullName: document.querySelector("#member-full-name"),
@@ -576,22 +567,6 @@ function openMemberForm(member) {
     );
 
     setFieldValue(
-        appointmentLetterUrl,
-        isEdit
-            ? member.appointment_letter_url
-                || member.appointmentLetterUrl
-            : "",
-    );
-
-    setFieldValue(
-        statementLetterUrl,
-        isEdit
-            ? member.statement_letter_url
-                || member.statementLetterUrl
-            : "",
-    );
-
-    setFieldValue(
         organizationLogoUrl,
         isEdit ? member.organization_logo_url : "",
     );
@@ -725,12 +700,6 @@ document.querySelectorAll(".detail-button").forEach((button) => {
         const detailIdentityNumber = document.querySelector(
             "#detail-identity-number",
         );
-        const detailAppointmentLetter = document.querySelector(
-            "#detail-appointment-letter",
-        );
-        const detailStatementLetter = document.querySelector(
-            "#detail-statement-letter",
-        );
 
         detailCategory.textContent = member.category || "-";
 
@@ -780,17 +749,6 @@ document.querySelectorAll(".detail-button").forEach((button) => {
                 || "/static/assets/icons/user.png";
         }
 
-        detailAppointmentLetter.hidden =
-            !member.appointment_letter_url;
-
-        detailAppointmentLetter.href =
-            member.appointment_letter_url || "#";
-
-        detailStatementLetter.hidden =
-            !member.statement_letter_url;
-
-        detailStatementLetter.href =
-            member.statement_letter_url || "#";    
         detailMemberModal.hidden = false;
         showDetailTab("profile");
     });

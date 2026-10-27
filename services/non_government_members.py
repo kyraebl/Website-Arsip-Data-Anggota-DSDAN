@@ -1,7 +1,6 @@
 from db import get_connection
 from services.form_helpers import (
     integer_value,
-    normalize_optional_url,
     text_value,
 )
 from services.uploads import delete_local_profile_photo, save_profile_photo
@@ -38,12 +37,6 @@ def get_form_values(form):
         "organization_logo_url": text_value(
             form,
             "organization_logo_url",
-        ),
-        "appointment_letter_url": normalize_optional_url(
-            form.get("appointment_letter_url", "")
-        ),
-        "statement_letter_url": normalize_optional_url(
-            form.get("statement_letter_url", "")
         ),
     }
 
@@ -98,8 +91,7 @@ def create_member(form, files, upload_dir):
                     telepon_organisasi, email_organisasi,
                     alamat_organisasi, foto_perwakilan, nama_lengkap,
                     nik, telepon, email, alamat,
-                    periode_penugasan, jumlah_anggota,
-                    surat_penunjukan_url, surat_pernyataan_url
+                    periode_penugasan, jumlah_anggota
                 )
                 VALUES (
                     %(member_id)s, %(organization_logo_url)s,
@@ -110,9 +102,7 @@ def create_member(form, files, upload_dir):
                     %(photo_url)s, %(full_name)s, %(identity_number)s,
                     %(phone)s, %(email)s,
                     %(address)s, %(assignment_period)s,
-                    %(organization_member_count)s,
-                    %(appointment_letter_url)s,
-                    %(statement_letter_url)s
+                    %(organization_member_count)s
                 )
                 """,
                 {**values, "member_id": member_id},
@@ -184,9 +174,7 @@ def update_member(member_id, form, files, upload_dir):
                     telepon = %(phone)s, email = %(email)s,
                     alamat = %(address)s,
                     periode_penugasan = %(assignment_period)s,
-                    jumlah_anggota = %(organization_member_count)s,
-                    surat_penunjukan_url = %(appointment_letter_url)s,
-                    surat_pernyataan_url = %(statement_letter_url)s
+                    jumlah_anggota = %(organization_member_count)s
                 WHERE anggota_id = %(member_id)s
                 """,
                 {**values, "member_id": member_id},

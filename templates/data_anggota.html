@@ -617,7 +617,7 @@
             <button class="member-type-option" type="button"
                 data-member-type="non-government">
                 Anggota Non-Pemerintah
-                <small>Data perwakilan, organisasi, dan dokumen.</small>
+                <small>Data perwakilan dan organisasi.</small>
             </button>
             <button class="member-type-option" type="button"
                 data-member-type="regional-government">
@@ -878,14 +878,6 @@
                     data-form-tab="organization"
                 >
                     Profile Organisasi
-                </button>
-
-                <button
-                    type="button"
-                    class="member-form-tab"
-                    data-form-tab="documents"
-                >
-                    Dokumen
                 </button>
             </div>
 
@@ -1155,44 +1147,6 @@
                     </div>
                 </section>
 
-                <section
-                    class="form-section member-form-panel"
-                    data-form-panel="documents"
-                    hidden
-                >
-                    <div class="form-section__heading">
-                        <h3>Dokumen</h3>
-                        <p>Masukkan link dokumen pendukung anggota.</p>
-                    </div>
-
-                    <div class="member-form__single-column">
-                        <label>
-                            Surat Penunjukan dari Asosiasi/Organisasi yang Diwakili
-                            <input
-                                id="appointment-letter-url"
-                                name="appointment_letter_url"
-                                type="url"
-                            >
-                            <small>
-                                Masukkan URL file PDF yang tersimpan di penyimpanan dokumen.
-                            </small>
-                        </label>
-
-                        <label>
-                            Surat Pernyataan Keabsahan Informasi
-                            <input
-                                id="statement-letter-url"
-                                name="statement_letter_url"
-                                type="url"
-                                placeholder="https://domain.com/surat-pernyataan.pdf"
-                            >
-                            <small>
-                                Masukkan URL file PDF yang tersimpan di penyimpanan dokumen.
-                            </small>
-                        </label>
-                    </div>
-                </section>
-
                 <div class="member-form-navigation">
                     <button
                         type="button"
@@ -1340,14 +1294,6 @@
                     data-detail-tab="organization"
                 >
                     Profile Organisasi
-                </button>
-
-                <button
-                    type="button"
-                    class="detail-tab"
-                    data-detail-tab="documents"
-                >
-                    Dokumen
                 </button>
             </div>
 
@@ -1554,11 +1500,6 @@
                     </div>
 
                     <div>
-                        <dt>NIK / Identitas</dt>
-                        <dd id="detail-identity-number">-</dd>
-                    </div>
-
-                    <div>
                         <dt>Nomor HP (WA) / Telp</dt>
                         <dd id="detail-phone">-</dd>
                     </div>
@@ -1635,34 +1576,6 @@
                         <dd id="detail-organization-email">-</dd>
                     </div>
                 </dl>
-            </section>
-
-            <section
-                class="detail-documents detail-panel"
-                data-detail-panel="documents"
-                hidden
-            >
-                <h3>Dokumen</h3>
-
-                <a
-                    id="detail-appointment-letter"
-                    href="#"
-                    target="_blank"
-                    rel="noopener"
-                    hidden
-                >
-                    Surat Penunjukan PDF
-                </a>
-
-                <a
-                    id="detail-statement-letter"
-                    href="#"
-                    target="_blank"
-                    rel="noopener"
-                    hidden
-                >
-                    Surat Pernyataan PDF
-                </a>
             </section>
         </div>
     </div>

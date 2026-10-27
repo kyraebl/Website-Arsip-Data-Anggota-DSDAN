@@ -10,14 +10,20 @@ from routes.members import (
     tambah_pemerintah,
     tambah_pemerintah_daerah,
 )
-from routes.pages import anggota, arsip_anggota, dashboard
+# Pastikan direktori_publik sudah diimpor dari routes.pages
+from routes.pages import anggota, arsip_anggota, dashboard, direktori_publik
 
 
 def register_routes(app):
-    app.add_url_rule("/", "index", index, methods=["GET"])
-    app.add_url_rule("/login", "login", login, methods=["GET", "POST"])
-    app.add_url_rule("/logout", "logout", logout, methods=["POST"])
+    # 1. Halaman utama (publik) langsung di domain root "/"
+    app.add_url_rule("/", "direktori_publik", direktori_publik, methods=["GET"])
 
+    # 2. Pintu masuk admin disembunyikan di "/kelola-sistem"
+    app.add_url_rule("/kelola-sistem", "index", index, methods=["GET"])
+    app.add_url_rule("/kelola-sistem/login", "login", login, methods=["GET", "POST"])
+    app.add_url_rule("/kelola-sistem/logout", "logout", logout, methods=["POST"])
+
+    # 3. Halaman internal admin
     app.add_url_rule(
         "/dashboard",
         "dashboard",
@@ -32,6 +38,7 @@ def register_routes(app):
         methods=["GET"],
     )
 
+    # 4. Proses CRUD (Create, Read, Update, Delete)
     app.add_url_rule(
         "/anggota/tambah",
         "tambah_anggota",
